@@ -56,7 +56,7 @@ function levelFinder()          //find user's level and return it
     mysqlConnect(0);
 }
 
-function intro()                //send user the introduction and add him to database and create his own database
+function intro()                //send User the introduction and add him to database and create his own database
 {
     global $user_id;
     //TODO complete this function
