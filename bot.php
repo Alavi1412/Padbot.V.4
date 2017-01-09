@@ -50,6 +50,18 @@ function recognize($note)         //recognize if user press the inline button or
         return 0;
     elseif ($note == "Ca_nC_31")
         return 0;
+    elseif ($note == "f1rst_Qu3stion")
+        return 0;
+    elseif ($note == "sec0nd_Qu3stion")
+        return 0;
+    elseif ($note == "th1rd_Qu3stion")
+        return 0;
+    elseif ($note == "f0rth_Qu3stion")
+        return 0;
+    elseif ($note == "f1fth_Qu3stion")
+        return 0;
+    elseif ($note == "s1x_Qu3stion" || $note == "us3R_m3nU")
+        return 0;
     else
         return 1;
 }
@@ -343,6 +355,7 @@ function continueHandler()                          //handle the continue button
     global $message_id;
     global $level;
     global $locale;
+    global $db;
     if ($level == "has_email_go_to_entrance")
     {
         if ($locale == "farsi") {
@@ -371,13 +384,397 @@ function continueHandler()                          //handle the continue button
         }
     }
     elseif ($level == "question_menu"){
-        makeCurl("SendMessage", ["chat_id" => $user_id, "text" => "To be continued"]);
+        question_menu();
     }
 }
 
-function question_menu()                    //show user the questions
+function question_menu()                    //show user the questions and user menu button
 {
-    //TODO this function should be completed
+    global $user_id;
+    global $message_id;
+    global $db;
+    global $locale;
+    mysqlConnect(1);
+    $result = mysqli_query($db, "SELECT * FROM bot.users WHERE user_id = {$user_id}");
+    $row = mysqli_fetch_array($result);
+    $string = $row['question_string'];
+    mysqli_query($db,"UPDATE bot.users SET current_level = 'question_showed' WHERE user_id = {$user_id}");
+    mysqlConnect(0);
+    $sign = array("◻️","◻️","◻️","◻️","◻️","◻️");
+    for($i = 0 ; $i < 6 ; $i++)
+    {
+        if($string[$i] == "1")
+            $sign[$i] = "☑️";
+    }
+    echo $sign[0];
+    if ($locale == "farsi")
+    {
+        makeCurl("editMessageText", ["chat_id" => $user_id, "message_id" => $message_id, "text" => "یک گزینه رو انتخاب کنید", "reply_markup" =>
+            json_encode([
+                "inline_keyboard" =>[
+                    [
+                        ["text" => "1{$sign[0]}", "callback_data" => "f1rst_Qu3stion"],["text" => "2{$sign[1]}", "callback_data" => "sec0nd_Qu3stion"],["text" => "3{$sign[2]}", "callback_data" => "th1rd_Qu3stion"]
+                    ],
+                    [
+                        ["text" => "4{$sign[3]}", "callback_data" => "f0rth_Qu3stion"],["text" => "5{$sign[4]}", "callback_data" => "f1fth_Qu3stion"],["text" => "6{$sign[5]}", "callback_data" => "s1x_Qu3stion"]
+                    ],
+                    [
+                        ["text" => "منوی کاربری", "callback_data" => "us3R_m3nU"]
+                    ]
+                ]
+            ])]);
+    }
+    elseif ($locale == "english")
+    {
+        makeCurl("editMessageText", ["chat_id" => $user_id, "message_id" => $message_id, "text" => "Choose one:", "reply_markup" =>
+            json_encode([
+                "inline_keyboard" =>[
+                    [
+                        ["text" => "1{$sign[0]}", "callback_data" => "f1rst_Qu3stion"],["text" => "2{$sign[1]}", "callback_data" => "sec0nd_Qu3stion"],["text" => "3{$sign[2]}", "callback_data" => "th1rd_Qu3stion"]
+                    ],
+                    [
+                        ["text" => "4{$sign[3]}", "callback_data" => "f0rth_Qu3stion"],["text" => "5{$sign[4]}", "callback_data" => "f1fth_Qu3stion"],["text" => "6{$sign[5]}", "callback_data" => "s1x_Qu3stion"]
+                    ],
+                    [
+                        ["text" => "User Menu", "callback_data" => "us3R_m3nU"]
+                    ]
+                ]
+            ])]);
+    }
+}
+
+function questionHandling()                     //handle requests from question menu button
+{
+    global $user_id;
+    global $text;
+    global $db;
+    if($text == "us3R_m3nU")
+    {
+        mysqlConnect(1);
+        mysqli_query($db, "UPDATE bot.users SET current_level = 'user_menu' WHERE user_id = {$user_id}");
+        $result = mysqli_query($db, "SELECT question_string FROM bot.users");
+        $row = mysqli_fetch_array($result);
+        mysqlConnect(0);
+        if($row[0] == "111111")
+            userMenu(1,1);
+        else
+            userMenu(1,0);
+    }elseif ($text == "f1rst_Qu3stion" || $text == "sec0nd_Qu3stion" || $text == "th1rd_Qu3stion" || $text == "f0rth_Qu3stion" || $text == "f1fth_Qu3stion" || $text == "s1x_Qu3stion")
+    {
+        $b = 2;
+        if($text == "f1rst_Qu3stion")
+            $b = 1;
+        elseif ($text == "sec0nd_Qu3stion")
+            $b = 2;
+        elseif ($text == "th1rd_Qu3stion")
+            $b = 3;
+        elseif ($text == "f0rth_Qu3stion")
+            $b = 4;
+        elseif ($text == "f1fth_Qu3stion")
+            $b = 5;
+        elseif ($text == "s1x_Qu3stion")
+            $b = 6;
+        mysqlConnect(1);
+        mysqli_query($db, "UPDATE bot.users SET current_level = 'asking_question', question_number = {$b} WHERE user_id = {$user_id}");
+        mysqlConnect(0);
+        askQuestion($b);
+    }
+}
+
+function returnQuestion($b)              //input=question number * output=question string
+{
+    global $locale;
+    if($locale == "farsi")
+    {
+        if($b == 1)
+            return "question #1 FA";
+        elseif ($b == 2)
+            return "questino #2 FA";
+        elseif ($b == 3)
+            return "questino #3 FA";
+        elseif ($b == 4)
+            return "questino #4 FA";
+        elseif ($b == 5)
+            return "questino #5 FA";
+        elseif ($b == 6)
+            return "questino #6 FA";
+    }
+    elseif ($locale == "english")
+    {
+        if($b == 1)
+            return "question #1 EN";
+        elseif ($b == 2)
+            return "questino #2 EN";
+        elseif ($b == 3)
+            return "questino #3 EN";
+        elseif ($b == 4)
+            return "questino #4 EN";
+        elseif ($b == 5)
+            return "questino #5 EN";
+        elseif ($b == 6)
+            return "questino #6 eN";
+    }
+}
+
+function askQuestion($b)                    //ask user the chosen question LEVEL = question_asked
+{
+    global $user_id;
+    global $db;
+    global $message_id;
+    global $locale;
+    $string = returnQuestion($b);
+    if ($locale == "farsi")
+        echo makeCurl("editMessageText", ["chat_id" => $user_id, "message_id" => $message_id, "text" => $string, "reply_markup" => json_encode([
+            "inline_keyboard" => [
+                [
+                    ["text" => "انصراف", "callback_data" => "Ca_nC_31"]
+                ]
+            ]
+        ])]);
+    elseif ($locale == "english")
+        makeCurl("editMessageText", ["chat_id" => $user_id, "message_id" => $message_id, "text" => $string, "reply_markup" => json_encode([
+            "inline_keyboard" => [
+                [
+                    ["text" => "Cancel", "callback_data" => "Ca_nC_31"]
+                ]
+            ]
+        ])]);
+    mysqlConnect(1);
+    mysqli_query($db, "UPDATE bot.users SET current_level = 'question_asked' WHERE user_id = {$user_id}");
+    mysqlConnect(0);
+}
+
+function userMenu($a,$f)                    //show user the menu and handle its requests TODO not completed
+{
+    global $user_id;
+    global $db;
+    global $text;
+    global $message_id;
+    global $locale;
+    if($a == 1)
+    {
+        if($locale == "farsi" && $f == 0)
+            makeCurl("editMessageText", ["chat_id" => $user_id, "text" => "انتخاب کنید.", "message_id" => $message_id, "reply_markup" => json_encode([
+                "inline_keyboard" => [
+                    [
+                        ["text" => "سوالات", "callback_data" => "g0_back_to_qu3stion"]
+                    ],
+                    [
+                        ["text" => "تیم من", "callback_data" => "mY_t3aM"]
+                    ],
+                    [
+                        ["text" => "مشخصات فردی", "callback_data" => "My_Inf0"]
+                    ],
+                    [
+                        ["text" => "پادپُرس", "url" => "http://www.padpors.com"]
+                    ],
+                    [
+                        ["text" => "امتیاز من", "callback_data" => "My_sc0R3"]
+                    ]
+                ]
+            ])]);
+        elseif($locale == "farsi" && $f == 1)
+            makeCurl("editMessageText", ["chat_id" => $user_id, "text" => "انتخاب کنید.", "message_id" => $message_id, "reply_markup" => json_encode([
+                "inline_keyboard" => [
+                    [
+                        ["text" => "سوالات", "callback_data" => "g0_back_to_qu3stion"]
+                    ],
+                    [
+                        ["text" => "تیم من", "callback_data" => "mY_t3aM"]
+                    ],
+                    [
+                        ["text" => "طرح سوال", "callback_data" => "Cr3at3_Qu3sTi0n"]
+                    ],
+                    [
+                        ["text" => "مشخصات فردی", "callback_data" => "My_Inf0"]
+                    ],
+                    [
+                        ["text" => "پادپُرس", "url" => "http://www.padpors.com"]
+                    ],
+                    [
+                        ["text" => "امتیاز من", "callback_data" => "My_sc0R3"]
+                    ]
+                ]
+            ])]);
+        elseif($locale == "english" && $f == 0)
+            makeCurl("editMessageText", ["chat_id" => $user_id, "text" => "انتخاب کنید.", "message_id" => $message_id, "reply_markup" => json_encode([
+                "inline_keyboard" => [
+                    [
+                        ["text" => "Questions", "callback_data" => "g0_back_to_qu3stion"]
+                    ],
+                    [
+                        ["text" => "My Team", "callback_data" => "mY_t3aM"]
+                    ],
+                    [
+                        ["text" => "My Info", "callback_data" => "My_Inf0"]
+                    ],
+                    [
+                        ["text" => "PADPORS", "url" => "http://www.padpors.com"]
+                    ],
+                    [
+                        ["text" => "My Score", "callback_data" => "My_sc0R3"]
+                    ]
+                ]
+            ])]);
+        elseif($locale == "english" && $f == 1)
+            makeCurl("editMessageText", ["chat_id" => $user_id, "text" => "انتخاب کنید.", "message_id" => $message_id, "reply_markup" => json_encode([
+                "inline_keyboard" => [
+                    [
+                        ["text" => "Questions", "callback_data" => "g0_back_to_qu3stion"]
+                    ],
+                    [
+                        ["text" => "My Team", "callback_data" => "mY_t3aM"]
+                    ],
+                    [
+                        ["text" => "Create Question", "callback_data" => "Cr3at3_Qu3sTi0n"]
+                    ],
+                    [
+                        ["text" => "My Info", "callback_data" => "My_Inf0"]
+                    ],
+                    [
+                        ["text" => "PADPORS", "url" => "http://www.padpors.com"]
+                    ],
+                    [
+                        ["text" => "My Score", "callback_data" => "My_sc0R3"]
+                    ]
+                ]
+            ])]);
+    }
+    elseif ($a == 2)
+    {
+        if ($text == "g0_back_to_qu3stion")
+            question_menu();
+    }
+}
+
+function startAsking()                      //handle the first request to bot after showing the question * level = answering
+{
+    global $db;
+    global $user_id;
+    global $text;
+    global $locale;
+    if($text == "Ca_nC_31")
+        question_menu();
+    else
+    {
+        mysqlConnect(1);
+        mysqli_query($db, "UPDATE bot.users SET current_level = 'answering', current_content = \"{$text}\" WHERE user_id = {$user_id}");
+        mysqlConnect(0);
+        if ($locale == "farsi")
+            makeCurl("sendMessage", ["chat_id" => $user_id, "text" => "اگه پاسخت تموم شد، بزن روی دکمه ی زیر.وگرنه هنوز میتونی به نوشتنت ادامه بدی و پاسخت رو تکمیل کنی.",
+                "reply_markup" => json_encode([
+                    "inline_keyboard" => [
+                        [
+                            ["text" => "تمومش کن","callback_data" => "3nD_iT"]
+                        ]
+                    ]
+                ])
+            ]);
+        elseif ($locale == "english")
+            makeCurl("sendMessage", ["chat_id" => $user_id, "text" => "I you have finished writing tap on the button below.Or you can continue writing without any problem",
+                "reply_markup" => json_encode([
+                    "inline_keyboard" => [
+                        [
+                            ["text" => "End it","callback_data" => "3nD_iT"]
+                        ]
+                    ]
+                ])
+            ]);
+    }
+}
+
+function answering()                    //after answering this function will handle every thing.
+{
+    global $user_id;
+    global $text;
+    global $db;
+    global $locale;
+    global $message_id;
+    if ($text == "3nD_iT")
+    {
+        mysqlConnect(1);
+        $result = mysqli_query($db, "SELECT * FROM bot.users WHERE user_id = {$user_id}");
+        $row = mysqli_fetch_array($result);
+        $qstring = $row['question_string'];
+        $qstring[$row['question_number'] - 1] = "1";
+        mysqli_query($db, "UPDATE bot.users SET current_level = 'question_menu', current_content = NULL , question_number = 0 , question_string = \"{$qstring}\" WHERE user_id = {$user_id}");
+        if ($row['team_master_key'])
+            $team = $row['team_master_key'];
+        else
+            $team = 0000000000;     //, question_number, group_of_answer_master_key    , {$row['question_number']}, {$team}
+        mysqli_query($db, "INSERT INTO bot.user{$user_id} (content) VALUES (\"{$row['current_content']}\")");               //TODO this line doesn't insert anything into database
+        mysqlConnect(0);
+        mail("content.padpors@gmail.com", returnQuestion($row['question_number']), $row['content'], "From: {$row['email']}");
+        if ($locale == "farsi")
+            makeCurl("editMessageText", ["chat_id" => $user_id, "message_id" => $message_id, "text" => "ممنون ازین که به این سوال پاسخ دادی.", "reply_markup" => json_encode([
+                "inline_keyboard" => [
+                    [
+                        ["text" => "ادامه", "callback_data" => "C0nT1nu3"]
+                    ]
+                ]
+            ])]);
+        elseif ($locale == "english")
+            makeCurl("editMessageText", ["chat_id" => $user_id, "message_id" => $message_id, "text" => "Thanks for your answer", "reply_markup" => json_encode([
+                "inline_keyboard" => [
+                    [
+                        ["text" => "Continue", "callback_data" => "C0nT1nu3"]
+                    ]
+                ]
+            ])]);
+
+    }
+    elseif(recognize($text) == 0)
+    {
+        if ($locale == "farsi")
+            makeCurl("sendMessage", ["chat_id" => $user_id, "text" => "اگه پاسخت تموم شد، بزن روی دکمه ی زیر.وگرنه هنوز میتونی به نوشتنت ادامه بدی و پاسخت رو تکمیل کنی.",
+                "reply_markup" => json_encode([
+                    "inline_keyboard" => [
+                        [
+                            ["text" => "تمومش کن","callback_data" => "3nD_iT"]
+                        ]
+                    ]
+                ])
+            ]);
+        elseif ($locale == "english")
+            makeCurl("sendMessage", ["chat_id" => $user_id, "text" => "If you have finished writing tap on the button below.Or you can continue writing without any problem",
+                "reply_markup" => json_encode([
+                    "inline_keyboard" => [
+                        [
+                            ["text" => "End it","callback_data" => "3nD_iT"]
+                        ]
+                    ]
+                ])
+            ]);
+    }
+    elseif (recognize($text) == 1){
+        mysqlConnect(1);
+        $result=mysqli_query($db,"SELECT * FROM bot.users WHERE user_id={$user_id}");
+        $row = mysqli_fetch_array($result);
+        $content = $row['content'];
+        $content .= " ";
+        $content .= $text;
+        mysqli_query($db,"UPDATE bot.users set  current_content = \"{$content}\" WHERE user_id={user_id}");
+        if ($locale == "farsi")
+            makeCurl("sendMessage", ["chat_id" => $user_id, "text" => "اگه پاسخت تموم شد، بزن روی دکمه ی زیر.وگرنه هنوز میتونی به نوشتنت ادامه بدی و پاسخت رو تکمیل کنی.",
+                "reply_markup" => json_encode([
+                    "inline_keyboard" => [
+                        [
+                            ["text" => "تمومش کن","callback_data" => "3nD_iT"]
+                        ]
+                    ]
+                ])
+            ]);
+        elseif ($locale == "english")
+            makeCurl("sendMessage", ["chat_id" => $user_id, "text" => "If you have finished writing tap on the button below.Or you can continue writing without any problem",
+                "reply_markup" => json_encode([
+                    "inline_keyboard" => [
+                        [
+                            ["text" => "End it","callback_data" => "3nD_iT"]
+                        ]
+                    ]
+                ])
+            ]);
+    }
 }
 
 function main()
@@ -422,6 +819,16 @@ function main()
                 answeringEntranceQuestion();
             elseif ($level == "waiting_for_master_key")
                 gettingMasterKey();
+            elseif ($level == "question_menu")
+                question_menu();
+            elseif ($level == "question_showed")
+                questionHandling();
+            elseif ($level == "user_menu")
+                userMenu(2,0);
+            elseif ($level == "question_asked")
+                startAsking();
+            elseif ($level == "answering")
+                answering();
             $last_updated_id = $update->update_id;              //should be removed
         }           //should be removed
     }               //should be removed
