@@ -96,10 +96,10 @@ function intro()                //send User the introduction and add him to data
     global $user_firstname;
     global $username;
     mysqlConnect(1);
-    makeCurl("sendPhoto",["chat_id" => $user_id, "photo" => "https://meta-s3-cdn.global.ssl.fastly.net/original/3X/c/a/ca61ea9e8fa9b8046cd59c524f7e0f76c912211f.png", "reply_markup" => json_encode([
+    makeCurl("sendPhoto",["chat_id" => $user_id, "photo" => "https://padpors.com//uploads/default/original/2X/4/4af4b49dc716348d5f988e5664d97795dbc1e04f.png", "reply_markup" => json_encode([
         "inline_keyboard" =>[
             [
-                ["text" => "فارسی" , "callback_data" => "P3R$1an"],["text" => "English", "callback_data" => "3ngL1$1h"]
+                ["text" => "English", "callback_data" => "3ngL1$1h"],["text" => "فارسی" , "callback_data" => "P3R$1an"]
             ]
         ]
     ])]);
@@ -116,11 +116,11 @@ function firstStep()                //the first step for user after click on loc
     if( $text == "P3R$1an")
     {
         mysqli_query($db, "UPDATE bot.users SET locale = 'farsi', current_level = 'firstStep' WHERE user_id = {$user_id}");
-        makeCurl("sendMessage", ["chat_id" => $user_id, "text" => "به پادپرس بات خوش آمدید. ایمیل خودتون رو وارد کنید و اگر یوزر پادپرس هستید ایمیل پادپرست رو وارد کن."]);
+        makeCurl("sendMessage", ["chat_id" => $user_id, "text" => "به پادبات خوش اومدی، بات رسمی پادپُرس. ایمیلت رو وارد کن و اگر کاربر پادپُرس هستی، ایمیل پادپُرست رو وارد کن."]);
     }elseif ($text == "3ngL1$1h")
     {
         mysqli_query($db, "UPDATE bot.users SET locale = 'english', current_level = 'firstStep' WHERE user_id = {$user_id}");
-        makeCurl("sendMessage", ["chat_id" => $user_id, "text" => "Enter your email:"]);
+        makeCurl("sendMessage", ["chat_id" => $user_id, "text" => "Enter your email; if you are Padpors user, provide your Padpors email."]);
     }
     mysqli_query($db, "CREATE TABLE bot.user{$user_id} ( content LONGTEXT CHARACTER SET utf8 COLLATE utf8_bin NULL DEFAULT NULL , score INT NULL DEFAULT '0' , question_number INT NULL , group_of_answer_master_key INT NULL , answer_id INT NULL )");
     mysqlConnect(0);
@@ -143,7 +143,7 @@ function getEmailStartEntrance()            //this function get user's email and
         mysqli_query($db, "UPDATE bot.users SET email = \"{$text}\", current_level = 'has_email_go_to_entrance' WHERE user_id = {$user_id}");
         mysqlConnect(0);
         if ($locale == "farsi") {
-            makeCurl("sendMessage", ["chat_id" => $user_id, "text" =>"از چه راهی میخواهی وارد مسابقه بشی؟", "reply_markup" => json_encode([
+            makeCurl("sendMessage", ["chat_id" => $user_id, "text" =>"از چه راهی میخوای وارد مسابقه شی؟", "reply_markup" => json_encode([
                 "inline_keyboard" =>[
                     [
                         ["text" => "شاه کلید دارم", "callback_data" => "Ent3R_V1a_Ma3t3R_k3Y"]
@@ -155,7 +155,7 @@ function getEmailStartEntrance()            //this function get user's email and
             ])]);
         }
         elseif ($locale == "english"){
-            makeCurl("sendMessage", ["chat_id" => $user_id, "text" =>"How do you want to enter?", "reply_markup" => json_encode([
+            makeCurl("sendMessage", ["chat_id" => $user_id, "text" =>"How do you want to enter the challenge?", "reply_markup" => json_encode([
                 "inline_keyboard" =>[
                     [
                         ["text" => "I have a MASTER KEY", "callback_data" => "Ent3R_V1a_Ma3t3R_k3Y"]
@@ -212,11 +212,11 @@ function entrance()                     //handle the menu in entrance and the us
         mysqlConnect(0);
         if ($locale == "farsi")
         {
-            echo makeCurl("editMessageText", ["chat_id" => $user_id, "text" => "سوال ورودی", "message_id" => $message_id]);
+            makeCurl("editMessageText", ["chat_id" => $user_id, "text" => "چرا میخوای تو چالش مقابله با آلودگی هوا مشارکت کنی؟", "message_id" => $message_id]);
         }
         elseif ($locale == "english")
         {
-            echo makeCurl("editMessageText", ["chat_id" => $user_id, "text" => "Entrance question", "message_id" => $message_id]);
+            makeCurl("editMessageText", ["chat_id" => $user_id, "text" => "Why do you want to participate in \"air pollution\" challenge?", "message_id" => $message_id]);
         }
     }
 }
@@ -330,20 +330,20 @@ function answeringEntranceQuestion()               //this function handle the an
     mysqli_query($db, "UPDATE bot.users SET current_level = 'question_menu' WHERE user_id = {$user_id}");
     mysqlConnect(0);
     if ($locale == "farsi")
-        makeCurl("sendMessage", ["chat_id" => $user_id, "text" => "تبریک شما به مسابقه وارد شدید", "reply_markup" =>
+        makeCurl("sendMessage", ["chat_id" => $user_id, "text" => "تبریک میگم! وارد مسابقه شدی.", "reply_markup" =>
         json_encode([
             "inline_keyboard" => [
                 [
-                    ["text" => "ادامه", "callback_data" => "C0nT1nu3"]
+                    ["text" => "بزن بریم!", "callback_data" => "C0nT1nu3"]
                 ]
             ]
         ])]);
     elseif ($locale == "english")
-        makeCurl("sendMessage", ["chat_id" => $user_id, "text" => "Congratualtions, You have Enterd the Game", "reply_markup" =>
+        makeCurl("sendMessage", ["chat_id" => $user_id, "text" => "Congratulations, You have entered the Game", "reply_markup" =>
             json_encode([
                 "inline_keyboard" => [
                     [
-                        ["text" => "Continue", "callback_data" => "C0nT1nu3"]
+                        ["text" => "Let's GO", "callback_data" => "C0nT1nu3"]
                     ]
                 ]
             ])]);
@@ -407,6 +407,8 @@ function continueHandler()                          //handle the continue button
         else
             userMenu(1,0);
     }
+    elseif ($level == "current_user")
+        info(0);
 }
 
 function question_menu()                    //show user the questions and user menu button
@@ -427,10 +429,9 @@ function question_menu()                    //show user the questions and user m
         if($string[$i] == "1")
             $sign[$i] = "☑️";
     }
-    echo $sign[0];
     if ($locale == "farsi")
     {
-        makeCurl("editMessageText", ["chat_id" => $user_id, "message_id" => $message_id, "text" => "یک گزینه رو انتخاب کنید", "reply_markup" =>
+        makeCurl("editMessageText", ["chat_id" => $user_id, "message_id" => $message_id, "text" => "یک گزینه رو انتخاب کن.", "reply_markup" =>
             json_encode([
                 "inline_keyboard" =>[
                     [
@@ -507,32 +508,54 @@ function returnQuestion($b)              //input=question number * output=questi
     if($locale == "farsi")
     {
         if($b == 1)
-            return "question #1 FA";
+            return "طرح پرسشنامه برای آمارگیری مجازی
+یه پرسشنامه خوب میتونه واسه قضیه آلایندگی خودروهای شخصی مناسب باشه، چون آلودگی هوا و استفاده از خودرو بیشتر یجور نوع مصرفه که می‌تونه اصلاح بشه. چه سوالاتی پیشنهاد میدید برای یه پرسشنامه؟";
         elseif ($b == 2)
-            return "questino #2 FA";
+            return "چه جوری میشه توجه آدمای بیشتری رو به آلودگی هوا جلب کرد؟
+وقتی توی یه هوای آلوده زندگی کنیم، کم کم این معضل برامون عادی می شه، بهش عادت می کنیم و دنبال رفعشم نیستیم. به چه روش های خلاقانه و ساده ای میشه راجع به موضوع آلودگی هوا آگاهی و توجه رو ایجاد کرد که بهش عادت نکنیم";
         elseif ($b == 3)
-            return "questino #3 FA";
+            return "کلان شهرهای پایدار چه ویژگی هایی باید داشته باشن؟
+مثلا چین و ژاپن با تراکم جمعیت مشابه، آسمون های متفاوتی دارن: چین به شدت آلوده و ژاپن به شدت پاک! به نظرتون کلان‌شهرهای پایداری مثل ژاپن، چه ویژگی‌های مشترکی دارن؟";
         elseif ($b == 4)
-            return "questino #4 FA";
+            return "چیکار کنیم که استفاده از خودرو به حداقل برسه؟
+داستان این است که بیش از ۸۰ درصد آلودگی هوا (هوایی که نفس می کشیم) ناشی از تردد خودرو های شخصی است!‌ حالا این یعنی چی!؟‌ 
+یعنی اینکه این وسیله نقلیه با یه سوختی کار می کند که دیر یازود تمام می شود (سوخت فسیلی) و این سوخت هنگام سوختن آلایندگی دارد! 
+این وسیله نقلیه برای حرکت کردن و نگهداری از آن به فضای زیادی احتیاج دارد! 
+تردد خودرو شخصی باعث آلودگی صوتی جدی می شود!
+یک حجمی به وزن بالا می تونه با سرعتی بیش از 60 کیلومتر درساعت حرکت کنه! این تقریبا\" میشه یک اسلحه مرگبار!
+
+در نتیجه این وسیله، وسیله \"نا کارآمدی\" است یعنی پایدار نیست، یعنی انسانی نیست یعنی با طبیعت نمی تواند خودرا تطبیق دهد.
+ساده و دوستانه بگم: غیر هوشمندانه، غیر اخلاقی، جاهلانه و غیر انسانی ست استفاده از وسیله ای که آسیب آن بیشتر از سود آن است!
+
+سوال اصلی این است: چیکار کنیم که استفاده از این وسیله به حداقل برسه؟";
         elseif ($b == 5)
-            return "questino #5 FA";
+            return "چه جوری میشه هوا رو بازیافت کرد؟
+چه روش‌های عجیبی به ذهنتون می‌رسه که بتونیم باهاش هوا رو پاک کنیم؟";
         elseif ($b == 6)
-            return "questino #6 FA";
+            return "سنجش آلودگی هوا به روش های نو
+گاهی مامان بزرگم ازم می‌پرسن که آیا امروز می‌تونن برن بیرون یا نه، و من میمونم که روی چه حسابی اطلاعات بدم. مخصوصا که خونه ی مامان بزرگم وب نداره! به نظرتون به چه روش های نویی میشه آلودگی هوا رو سنجید؟";
     }
     elseif ($locale == "english")
     {
         if($b == 1)
-            return "question #1 EN";
+            return "Designing a questionnaire
+            A good questionnaire about car pollution, can increase awareness and help us improve our consumption habits. What questions do you suggest to put in such a questionnaire?";
         elseif ($b == 2)
-            return "questino #2 EN";
+            return "How can we draw attentions to the pollution challenge? 
+When we live in a polluted air, we get used to it and forget to improve it. In what creative and simple ways can we draw others attention to this problem, so that we don’t get addicted to our situations? ";
         elseif ($b == 3)
-            return "questino #3 EN";
+            return "How can we make cities sustainable? 
+China and Japan have similar human density, but different skies! One highly polluted and the other one clean. How can we build metropolises like Tokyo? What are the “to-do’s and not-t-do’s”?";
         elseif ($b == 4)
-            return "questino #4 EN";
+            return "How can we reduce number of cars in a city?
+Using cars has many damages to our environment: 1- air pollution because of oil burned out, 2- sound pollution 3- a deadly weapon because of the speed of this heavy mass. 
+As a result, it is better to use it less. What creative ways do you know to reduce the number of cars in our cities?";
         elseif ($b == 5)
-            return "questino #5 EN";
+            return "If anything was possible, what out of box and extraordinary ways comes into your mind to clean the air? ";
         elseif ($b == 6)
-            return "questino #6 eN";
+            return "How can we measure pollution?
+There are times my grandmother asks me if she can go out or not, and I really don’t know how to answer here! P.s.: OF course she doesn’t have web in her place! 
+What new and out of box methods do you suggest to measure the pollution?";
     }
 }
 
@@ -544,7 +567,7 @@ function askQuestion($b)                    //ask user the chosen question LEVEL
     global $locale;
     $string = returnQuestion($b);
     if ($locale == "farsi")
-        echo makeCurl("editMessageText", ["chat_id" => $user_id, "message_id" => $message_id, "text" => $string, "reply_markup" => json_encode([
+        makeCurl("editMessageText", ["chat_id" => $user_id, "message_id" => $message_id, "text" => $string, "reply_markup" => json_encode([
             "inline_keyboard" => [
                 [
                     ["text" => "انصراف", "callback_data" => "Ca_nC_31"]
@@ -564,7 +587,7 @@ function askQuestion($b)                    //ask user the chosen question LEVEL
     mysqlConnect(0);
 }
 
-function userMenu($a,$f)                    //show user the menu and handle its requests TODO not completed
+function userMenu($a,$f)                    //show user the menu and handle its requests TODO create not completed
 {
     global $user_id;
     global $db;
@@ -577,7 +600,7 @@ function userMenu($a,$f)                    //show user the menu and handle its 
         mysqli_query($db, "UPDATE bot.users SET current_level = 'user_menu' WHERE user_id = {$user_id}");
         mysqlConnect(0);
         if($locale == "farsi" && $f == 0)
-            makeCurl("editMessageText", ["chat_id" => $user_id, "text" => "انتخاب کنید.", "message_id" => $message_id, "reply_markup" => json_encode([
+            makeCurl("editMessageText", ["chat_id" => $user_id, "text" => "انتخاب کن.", "message_id" => $message_id, "reply_markup" => json_encode([
                 "inline_keyboard" => [
                     [
                         ["text" => "سوالات", "callback_data" => "g0_back_to_qu3stion"]
@@ -586,7 +609,7 @@ function userMenu($a,$f)                    //show user the menu and handle its 
                         ["text" => "تیم من", "callback_data" => "mY_t3aM"]
                     ],
                     [
-                        ["text" => "مشخصات فردی", "callback_data" => "My_Inf0"]
+                        ["text" => "صفحه شخصی", "callback_data" => "My_Inf0"]
                     ],
                     [
                         ["text" => "پادپُرس", "url" => "http://www.padpors.com"]
@@ -597,7 +620,7 @@ function userMenu($a,$f)                    //show user the menu and handle its 
                 ]
             ])]);
         elseif($locale == "farsi" && $f == 1)
-            makeCurl("editMessageText", ["chat_id" => $user_id, "text" => "انتخاب کنید.", "message_id" => $message_id, "reply_markup" => json_encode([
+            makeCurl("editMessageText", ["chat_id" => $user_id, "text" => "انتخاب کن.", "message_id" => $message_id, "reply_markup" => json_encode([
                 "inline_keyboard" => [
                     [
                         ["text" => "سوالات", "callback_data" => "g0_back_to_qu3stion"]
@@ -609,7 +632,7 @@ function userMenu($a,$f)                    //show user the menu and handle its 
                         ["text" => "طرح سوال", "callback_data" => "Cr3at3_Qu3sTi0n"]
                     ],
                     [
-                        ["text" => "مشخصات فردی", "callback_data" => "My_Inf0"]
+                        ["text" => "صفحه شخصی", "callback_data" => "My_Inf0"]
                     ],
                     [
                         ["text" => "پادپُرس", "url" => "http://www.padpors.com"]
@@ -620,7 +643,7 @@ function userMenu($a,$f)                    //show user the menu and handle its 
                 ]
             ])]);
         elseif($locale == "english" && $f == 0)
-            makeCurl("editMessageText", ["chat_id" => $user_id, "text" => "انتخاب کنید.", "message_id" => $message_id, "reply_markup" => json_encode([
+            makeCurl("editMessageText", ["chat_id" => $user_id, "text" => "انتخاب کن.", "message_id" => $message_id, "reply_markup" => json_encode([
                 "inline_keyboard" => [
                     [
                         ["text" => "Questions", "callback_data" => "g0_back_to_qu3stion"]
@@ -629,7 +652,7 @@ function userMenu($a,$f)                    //show user the menu and handle its 
                         ["text" => "My Team", "callback_data" => "mY_t3aM"]
                     ],
                     [
-                        ["text" => "My Info", "callback_data" => "My_Inf0"]
+                        ["text" => "My Profile", "callback_data" => "My_Inf0"]
                     ],
                     [
                         ["text" => "PADPORS", "url" => "http://www.padpors.com"]
@@ -640,7 +663,7 @@ function userMenu($a,$f)                    //show user the menu and handle its 
                 ]
             ])]);
         elseif($locale == "english" && $f == 1)
-            makeCurl("editMessageText", ["chat_id" => $user_id, "text" => "انتخاب کنید.", "message_id" => $message_id, "reply_markup" => json_encode([
+            makeCurl("editMessageText", ["chat_id" => $user_id, "text" => "انتخاب کن.", "message_id" => $message_id, "reply_markup" => json_encode([
                 "inline_keyboard" => [
                     [
                         ["text" => "Questions", "callback_data" => "g0_back_to_qu3stion"]
@@ -652,7 +675,7 @@ function userMenu($a,$f)                    //show user the menu and handle its 
                         ["text" => "Create Question", "callback_data" => "Cr3at3_Qu3sTi0n"]
                     ],
                     [
-                        ["text" => "My Info", "callback_data" => "My_Inf0"]
+                        ["text" => "My Profile", "callback_data" => "My_Inf0"]
                     ],
                     [
                         ["text" => "PADPORS", "url" => "http://www.padpors.com"]
@@ -671,10 +694,113 @@ function userMenu($a,$f)                    //show user the menu and handle its 
             info(0);
         elseif ($text == "My_sc0R3")
             score();
+        elseif ($text == "mY_t3aM")
+        {
+            if ($locale == "farsi")
+                makeCurl("editMessageText", ["message_id" => $message_id, "chat_id" => $user_id, "text" => "این بخش به زودی اضافه خواهد شد", "reply_markup" => json_encode([
+                    "inline_keyboard" => [
+                        [
+                            ["text" => "ادامه", "callback_data" => "C0nT1nu3"]
+                        ]
+                    ]
+                ])]);
+            elseif ($locale == "english")
+                makeCurl("editMessageText", ["message_id" => $message_id, "chat_id" => $user_id, "text" => "Coming SOON ...", "reply_markup" => json_encode([
+                    "inline_keyboard" => [
+                        [
+                            ["text" => "Continue", "callback_data" => "C0nT1nu3"]
+                        ]
+                    ]
+                ])]);
+        }
+        elseif ($text == "Cr3at3_Qu3sTi0n")
+            makeQuestion(0);
     }
 }
 
-function score()
+function makeQuestion($i)                       //make question and change level to making_question
+{
+    global $user_id;
+    global $message_id;
+    global $locale;
+    global $db;
+    global $text;
+    if ($i == 0)
+    {
+        mysqlConnect(1);
+        mysqli_query($db, "UPDATE bot.users SET current_level = 'making_question' WHERE user_id = {$user_id}");
+        mysqlConnect(0);
+        if ($locale == "farsi")
+            makeCurl("editMessageText", ["chat_id" => $user_id, "message_id" => $message_id, "text" => "سوال خودت رو مطرح کن", "reply_markup" => json_encode([
+                "inline_keyboard" => [
+                     [
+                         ["text" => "انصراف", "callback_data" => "Ca_nC_31"]
+                     ]
+                ]
+           ])]);
+        elseif ($locale == "english")
+            makeCurl("editMessageText", ["chat_id" => $user_id, "message_id" => $message_id, "text" => "Type your OWN question", "reply_markup" => json_encode([
+                "inline_keyboard" => [
+                    [
+                        ["text" => "Cancel", "callback_data" => "Ca_nC_31"]
+                    ]
+                ]
+            ])]);
+    }
+    elseif ($i == 1)
+    {
+        if ($text == "Ca_nC_31")
+            userMenu(1,1);
+        else
+        {
+            if (recognize($text) == 0) {
+                if ($locale == "farsi")
+                    makeCurl("editMessageText", ["chat_id" => $user_id, "message_id" => $message_id, "text" => "سوال خودت رو مطرح کن", "reply_markup" => json_encode([
+                        "inline_keyboard" => [
+                            [
+                                ["text" => "انصراف", "callback_data" => "Ca_nC_31"]
+                            ]
+                        ]
+                    ])]);
+                elseif ($locale == "english")
+                    makeCurl("editMessageText", ["chat_id" => $user_id, "message_id" => $message_id, "text" => "Type your OWN question", "reply_markup" => json_encode([
+                        "inline_keyboard" => [
+                            [
+                                ["text" => "Cancel", "callback_data" => "Ca_nC_31"]
+                            ]
+                        ]
+                    ])]);
+            }
+            elseif (recognize($text) == 1)
+            {
+                mysqlConnect(1);
+                $result = mysqli_query($db, "SELECT * FROM bot.users WHERE user_id = {$user_id}");
+                $row = mysqli_fetch_array($result);
+                mysqli_query($db, "UPDATE bot.users SET current_level = 'user_menu' WHERE user_id = {$user_id}");
+                mysqlConnect(0);
+                mail("content.padpors@gmail.com", returnQuestion($row['question_number']), $text, "From: {$row['email']}");
+                if ($locale == "farsi")
+                    makeCurl("sendMessage", ["chat_id" => $user_id, "text" => "سوالت ثبت شد", "reply_markup" => json_encode([
+                        "inline_keyboard" => [
+                            [
+                                ["text" => "ادامه", "callback_data" => "C0nT1nu3"]
+                            ]
+                        ]
+                    ])]);
+                elseif ($locale == "english")
+                    makeCurl("sendMessage", ["chat_id" => $user_id, "text" => "Your question saved", "reply_markup" => json_encode([
+                        "inline_keyboard" => [
+                            [
+                                ["text" => "Continue", "callback_data" => "C0nT1nu3"]
+                            ]
+                        ]
+                    ])]);
+            }
+        }
+    }
+}
+
+function score()                                //calculate the score
 {
     global $user_id;
     global $db;
@@ -682,7 +808,6 @@ function score()
     global $locale;
     mysqlConnect(1);
     $result = mysqli_query($db, "SELECT * FROM bot.users WHERE user_id = {$user_id}");
-
     $row = mysqli_fetch_array($result);
     if ($row['padpors_username'])
         $username = $row['padpors_username'];
@@ -692,13 +817,17 @@ function score()
         $pos = strpos($email, "@");
         $username = substr($email, 0, $pos);
     }
-    $xml = file_get_contents("https://padpors.com/users/{$username}/summary.json?api_key=9aec25ee055bac3946751cada80ae77d4d958b450106f8c0e1d5a25a09e179d9&api_username=padpors");
+    $score = 0;
+    $xml = file_get_contents("https://padpors.com/users/{$username}/summary.json?api_key=****&api_username=****");           //TODO don't commit API key
     $answer = json_decode($xml);
-    $score = $answer -> user_summary -> likes_received;
+    if ($answer -> user_summary -> likes_received)
+        $score = $answer -> user_summary -> likes_received;
+    if ($row['logged_in'] == 1)
+        $score = $score + 5;
     mysqli_query($db, "UPDATE bot.users SET score = {$score} WHERE user_id = {$user_id}");
     mysqlConnect(0);
     if ($locale == "farsi")
-        makeCurl("editMessageText", ["message_id" => $message_id, "chat_id" => $user_id, "text" => "امتیاز شما:{$score}", "reply_markup" => json_encode([
+        makeCurl("editMessageText", ["message_id" => $message_id, "chat_id" => $user_id, "text" => "اعتبار شما: {$score}", "reply_markup" => json_encode([
             "inline_keyboard" => [
                 [
                     ["text" => "ادامه", "callback_data" => "C0nT1nu3"]
@@ -706,7 +835,7 @@ function score()
             ]
         ])]);
     elseif ($locale == "english")
-        makeCurl("editMessageText", ["message_id" => $message_id, "chat_id" => $user_id, "text" => "Your score:{$score}", "reply_markup" => json_encode([
+        makeCurl("editMessageText", ["message_id" => $message_id, "chat_id" => $user_id, "text" => "Your Reputation: {$score}", "reply_markup" => json_encode([
             "inline_keyboard" => [
                 [
                     ["text" => "Continue", "callback_data" => "C0nT1nu3"]
@@ -715,7 +844,7 @@ function score()
         ])]);
 }
 
-function info($i)                       //show and handle my info button  TODO not complete
+function info($i)                       //show and handle my info button  TODO my padpors not complete
 {
     global $message_id;
     global $user_id;
@@ -731,7 +860,7 @@ function info($i)                       //show and handle my info button  TODO n
         $row = mysqli_fetch_array($result);
         if ($row['logged_in'] == 0) {
             if ($locale == "farsi")
-                makeCurl("editMessageText", ["chat_id" => $user_id, "message_id" => $message_id, "text" => "انتخاب کنید", "reply_markup" => json_encode([
+                makeCurl("editMessageText", ["chat_id" => $user_id, "message_id" => $message_id, "text" => "انتخاب کن", "reply_markup" => json_encode([
                     "inline_keyboard" => [
                         [
                             ["text" => "تغییر زبان", "callback_data" => "ChanG3_lanGuag3"]
@@ -754,7 +883,7 @@ function info($i)                       //show and handle my info button  TODO n
                             ["text" => "Change Language", "callback_data" => "ChanG3_lanGuag3"]
                         ],
                         [
-                            ["text" => "Enter PadPors", "callback_data" => "my_Padp0rS"]
+                            ["text" => "Log into PadPors", "callback_data" => "my_Padp0rS"]
                         ],
                         [
                             ["text" => "My Email",  "callback_data" => "my_3ma1L"]
@@ -767,7 +896,7 @@ function info($i)                       //show and handle my info button  TODO n
         }
         elseif ($row['logged_in'] == 1){
             if ($locale == "farsi")
-                makeCurl("editMessageText", ["chat_id" => $user_id, "message_id" => $message_id, "text" => "انتخاب کنید", "reply_markup" => json_encode([
+                makeCurl("editMessageText", ["chat_id" => $user_id, "message_id" => $message_id, "text" => "انتخاب کن.", "reply_markup" => json_encode([
                     "inline_keyboard" => [
                         [
                             ["text" => "تغییر زبان", "callback_data" => "ChanG3_lanGuag3"]
@@ -807,7 +936,199 @@ function info($i)                       //show and handle my info button  TODO n
             changeLang(0);
         elseif ($text == "my_3ma1L")
             myEmail(0);
+        elseif ($text == "my_Padp0rS")
+            account(0);
 
+    }
+}
+
+function account($i)                    //sync user's padpors account with padbot
+{
+    global $message_id;
+    global $user_id;
+    global $text;
+    global $db;
+    global $locale;
+    if ($i == 0)
+    {
+        mysqlConnect(1);
+        mysqli_query($db, "UPDATE bot.users SET current_level = 'how_Enter' WHERE user_id = {$user_id}");
+        mysqlConnect(0);
+        if ($locale == "farsi")
+            makeCurl("editMessageText", ["chat_id" => $user_id, "message_id" => $message_id, "text" => "یکی از گزینه هارو انتخاب کن.", "reply_markup" => json_encode([
+                "inline_keyboard" => [
+                    [
+                        ["text" => "قبلا کاربر پادپرس بودم", "callback_data" => "r3c3nT_us3R"]
+                    ],
+                    [
+                        ["text" => "میخوام کاربر پادپرس بشم", "callback_data" => "MAK3_ACc0uNt"]
+                    ],
+                    [
+                        ["text" => "بازگشت", "callback_data" => "R3Turn"]
+                    ]
+                ]
+            ])]);
+        elseif ($locale == "english")
+            makeCurl("editMessageText", ["chat_id" => $user_id, "message_id" => $message_id, "text" => "Choose", "reply_markup" => json_encode([
+                "inline_keyboard" => [
+                    [
+                        ["text" => "Recent user", "callback_data" => "r3c3nT_us3R"]
+                    ],
+                    [
+                        ["text" => "Make user", "callback_data" => "MAK3_ACc0uNt"]
+                    ],
+                    [
+                        ["text" => "return", "callback_data" => "R3Turn"]
+                    ]
+                ]
+            ])]);
+    }
+    elseif ($i == 1)
+    {
+        if ($text == "R3Turn")
+            info(0);
+        elseif ($text == "r3c3nT_us3R")
+        {
+            if ($locale == "farsi")
+                makeCurl("editMessageText", ["chat_id" => $user_id, "message_id" => $message_id, "text" => "نام کاربری خود را وارد کنید:", "reply_markup" => json_encode([
+                    "inline_keyboard" => [
+                        [
+                            ["text" =>"بازگشت", "callback_data" => "R3Turn"]
+                        ]
+                    ]
+                ])]);
+            elseif ($locale == "english")
+            makeCurl("editMessageText", ["chat_id" => $user_id, "message_id" => $message_id, "text" => "Enter Your Username:", "reply_markup" => json_encode([
+                "inline_keyboard" => [
+                    [
+                        ["text" =>"Return", "callback_data" => "R3Turn"]
+                    ]
+                ]
+            ])]);
+
+        mysqlConnect(1);
+        mysqli_query($db, "UPDATE bot.users SET current_level = 'current_user' WHERE user_id = {$user_id}");
+        mysqlConnect(0);
+        }
+        elseif ($text == "MAK3_ACc0uNt")
+        {
+            mysqlConnect(1);
+            mysqli_query($db, "UPDATE bot.users SET current_level = 'user_menu' WHERE user_id = {$user_id}");
+            mysqlConnect(0);
+            if ($locale == "farsi")
+                makeCurl("editMessageText", ["chat_id" => $user_id, "message_id" => $message_id, "text" => "این بخش به زودی اضافه خواهد شد.", "reply_markup" => json_encode([
+                    "inline_keyboard" =>[
+                        [
+                            ["text" => "ادامه", "callback_data" => "C0nT1nu3"]
+                        ]
+                    ]
+                ])]);
+            elseif ($locale == "english")
+                makeCurl("editMessageText", ["chat_id" => $user_id, "message_id" => $message_id, "text" => "Coming SOON", "reply_markup" => json_encode([
+                    "inline_keyboard" =>[
+                        [
+                            ["text" => "Continue", "callback_data" => "C0nT1nu3"]
+                        ]
+                    ]
+                ])]);
+        }
+    }
+    elseif ($i == 2)
+    {
+        if ($text == "R3Turn")
+            info(0);
+        elseif (recognize($text) == 0) {
+            if ($locale == "farsi")
+                makeCurl("sendMessage", ["chat_id" => $user_id, "text" => "لطفا نام کاربری معتبر وارد کنید", "reply_markup" => json_encode([
+                    "inline_keyboard" => [
+                        [
+                            ["text" => "ادامه", "callback_data" => "C0nT1nu3"]
+                        ]
+                    ]
+                ])]);
+            elseif ($locale == "english")
+                makeCurl("sendMessage", ["chat_id" => $user_id, "text" => "Please Enter a valid Username", "reply_markup" => json_encode([
+                    "inline_keyboard" => [
+                        [
+                            ["text" => "Continue", "callback_data" => "C0nT1nu3"]
+                        ]
+                    ]
+                ])]);
+        }
+        else
+        {
+            mysqlConnect(1);
+            $result = mysqli_query($db, "SELECT * FROM bot.users WHERE user_id = {$user_id}");
+            $row = mysqli_fetch_array($result);
+            mysqlConnect(0);
+            $email = $row['email'];
+            $xml = file_get_contents("https://padpors.com/admin/users/list/active.json?filter={$email}&show_emails=false&_=1484208836960&api_key=****&api_username=****");           //TODO don't commit API KEY
+            $answer = json_decode($xml);
+            if($answer[0] -> username)
+            {
+                $username = $answer[0] -> username;
+                if(strcasecmp($username ,$text) == 0)
+                {
+                    mysqlConnect(1);
+                    $result2 = mysqli_query($db, "SELECT * FROM bot.users WHERE user_id = {$user_id}");
+                    $row2 = mysqli_fetch_array($result2);
+                    $score = $row2['score'];
+                    mysqli_query($db, "UPDATE bot.users SET current_level = 'user_menu',score = $score, padpors_username = \"{$username}\", logged_in = 1 WHERE user_id = {$user_id}");
+                    mysqlConnect(0);
+                    if ($locale == "farsi")
+                        makeCurl("sendMessage", ["chat_id" => $user_id, "text" => "تبریک. شما وارد شدید و 5 امتیاز هدیه گرفتید.", "reply_markup" => json_encode([
+                        "inline_keyboard" => [
+                            [
+                                ["text" => "ادامه", "callback_data" => "C0nT1nu3"]
+                            ]
+                        ]
+                        ])]);
+                    elseif ($locale == "english")
+                        makeCurl("sendMessage", ["chat_id" => $user_id, "text" => "Congratulation You Logged in successfully. You have reached 5 score as gift", "reply_markup" => json_encode([
+                        "inline_keyboard" => [
+                            [
+                                ["text" => "Continue", "callback_data" => "C0nT1nu3"]
+                            ]
+                        ]
+                        ])]);
+                }
+                else
+                    if ($locale == "farsi")
+                        makeCurl("sendMessage", ["chat_id" => $user_id, "text" => "نام کاربری با ایمیل شما مطابق ندارد.", "reply_markup" => json_encode([
+                            "inline_keyboard" => [
+                                [
+                                    ["text" => "ادامه", "callback_data" => "C0nT1nu3"]
+                                ]
+                            ]
+                        ])]);
+                    elseif ($locale == "english")
+                        makeCurl("sendMessage", ["chat_id" => $user_id, "text" => "Please Enter a valid Username", "reply_markup" => json_encode([
+                            "inline_keyboard" => [
+                                [
+                                    ["text" => "Continue", "callback_data" => "C0nT1nu3"]
+                                ]
+                            ]
+                        ])]);
+            }
+            else {
+                if ($locale == "farsi")
+                    makeCurl("sendMessage", ["chat_id" => $user_id, "text" => "نام کاربری با ایمیل شما مطابق ندارد.", "reply_markup" => json_encode([
+                        "inline_keyboard" => [
+                            [
+                                ["text" => "ادامه", "callback_data" => "C0nT1nu3"]
+                            ]
+                        ]
+                    ])]);
+                elseif ($locale == "english")
+                    makeCurl("sendMessage", ["chat_id" => $user_id, "text" => "Please Enter a valid Username", "reply_markup" => json_encode([
+                        "inline_keyboard" => [
+                            [
+                                ["text" => "Continue", "callback_data" => "C0nT1nu3"]
+                            ]
+                        ]
+                    ])]);
+            }
+        }
     }
 }
 
@@ -886,7 +1207,7 @@ function changeLang($i)                 //show and change the language for user
         mysqli_query($db, "UPDATE bot.users SET current_level = 'watching_change_language' WHERE user_id = {$user_id}");
         mysqlConnect(0);
         if ($locale == "farsi")
-            makeCurl("editMessageText", ["chat_id" => $user_id, "message_id" => $message_id, "text" => "انتخاب کنید", "reply_markup" => json_encode([
+            makeCurl("editMessageText", ["chat_id" => $user_id, "message_id" => $message_id, "text" => "انتخاب کن.", "reply_markup" => json_encode([
                 "inline_keyboard" =>[
                     [
                         ["text" => "فارسی", "callback_data" => "chang3_T0_p3Rs1an"], ["text" => "انگلیسی", "callback_data" => "chang3_T0_3nGl1sH"]
@@ -1126,8 +1447,14 @@ function main()
                 info(1);
             elseif ($level == "watching_change_language")
                 changeLang(1);
-            elseif ($level = "changing_email")
+            elseif ($level == "changing_email")
                 myEmail(1);
+            elseif ($level == "making_question")
+                makeQuestion(1);
+            elseif ($level == "how_Enter")
+                account(1);
+            elseif ($level == "current_user")
+                account(2);
             $last_updated_id = $update->update_id;              //should be removed
         }           //should be removed
     }               //should be removed
