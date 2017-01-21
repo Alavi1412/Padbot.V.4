@@ -31,7 +31,7 @@ function mysqlConnect($i)       //function for connection and disconnection to d
 {
     global $db;
     if ($i == 1)
-        $db=mysqli_connect("localhost","root","root","bot");
+        $db=mysqli_connect("localhost","root","root","padporsc_bot4");
     elseif ($i == 0)
         echo mysqli_close($db);
 }
@@ -74,7 +74,7 @@ function levelFinder()          //find user's level and return it
     global $locale;
     mysqlConnect(1);
     $b = 0;
-    $result = mysqli_query($db,"SELECT * FROM bot.users WHERE user_id={$user_id}");
+    $result = mysqli_query($db,"SELECT * FROM padporsc_bot4.users WHERE user_id={$user_id}");
     while($row = mysqli_fetch_array($result))
     {
         if($row['current_level'])
@@ -103,7 +103,7 @@ function intro()                //send User the introduction and add him to data
             ]
         ]
     ])]);
-    mysqli_query($db, "INSERT INTO bot.users (user_id, user_first_name, current_level, username) VALUES ({$user_id}, \"{$user_firstname}\", 'intro_showed', \"{$username}\")");
+    mysqli_query($db, "INSERT INTO padporsc_bot4.users (user_id, user_first_name, current_level, username) VALUES ({$user_id}, \"{$user_firstname}\", 'intro_showed', \"{$username}\")");
     mysqlConnect(0);
 }
 
@@ -115,14 +115,14 @@ function firstStep()                //the first step for user after click on loc
     mysqlConnect(1);
     if( $text == "P3R$1an")
     {
-        mysqli_query($db, "UPDATE bot.users SET locale = 'farsi', current_level = 'firstStep' WHERE user_id = {$user_id}");
+        mysqli_query($db, "UPDATE padporsc_bot4.users SET locale = 'farsi', current_level = 'firstStep' WHERE user_id = {$user_id}");
         makeCurl("sendMessage", ["chat_id" => $user_id, "text" => "به پادبات خوش اومدی، بات رسمی پادپُرس. ایمیلت رو وارد کن و اگر کاربر پادپُرس هستی، ایمیل پادپُرست رو وارد کن."]);
     }elseif ($text == "3ngL1$1h")
     {
-        mysqli_query($db, "UPDATE bot.users SET locale = 'english', current_level = 'firstStep' WHERE user_id = {$user_id}");
+        mysqli_query($db, "UPDATE padporsc_bot4.users SET locale = 'english', current_level = 'firstStep' WHERE user_id = {$user_id}");
         makeCurl("sendMessage", ["chat_id" => $user_id, "text" => "Enter your email; if you are Padpors user, provide your Padpors email."]);
     }
-    mysqli_query($db, "CREATE TABLE bot.user{$user_id} ( content LONGTEXT CHARACTER SET utf8 COLLATE utf8_bin NULL DEFAULT NULL , score INT NULL DEFAULT '0' , question_number INT NULL , group_of_answer_master_key INT NULL , answer_id INT NULL )");
+    mysqli_query($db, "CREATE TABLE padporsc_bot4.user{$user_id} ( content LONGTEXT CHARACTER SET utf8 COLLATE utf8_bin NULL DEFAULT NULL , score INT NULL DEFAULT '0' , question_number INT NULL , group_of_answer_master_key INT NULL , answer_id INT NULL )");
     mysqlConnect(0);
 }
 
@@ -132,7 +132,7 @@ function getEmailStartEntrance()            //this function get user's email and
     global $db;
     global $text;
     global $locale;
-    if( recognize($text == 0)){
+    if( recognize($text) == 0){
         if ($locale == "farsi")
             makeCurl("sendMessage", ["chat_id" => $user_id, "text" => "لطفا ایمیل معتبر وارد کنید."]);
         elseif ($locale == "english")
@@ -140,7 +140,7 @@ function getEmailStartEntrance()            //this function get user's email and
     }elseif ( recognize($text) == 1)
     {
         mysqlConnect(1);
-        mysqli_query($db, "UPDATE bot.users SET email = \"{$text}\", current_level = 'has_email_go_to_entrance' WHERE user_id = {$user_id}");
+        mysqli_query($db, "UPDATE padporsc_bot4.users SET email = \"{$text}\", current_level = 'has_email_go_to_entrance' WHERE user_id = {$user_id}");
         mysqlConnect(0);
         if ($locale == "farsi") {
             makeCurl("sendMessage", ["chat_id" => $user_id, "text" =>"از چه راهی میخوای وارد مسابقه شی؟", "reply_markup" => json_encode([
@@ -179,7 +179,7 @@ function entrance()                     //handle the menu in entrance and the us
     if($text == "Ent3R_V1a_Ma3t3R_k3Y")
     {
         mysqlConnect(1);
-        mysqli_query($db, "UPDATE bot.users SET current_level = 'waiting_for_master_key' WHERE user_id = {$user_id}");
+        mysqli_query($db, "UPDATE padporsc_bot4.users SET current_level = 'waiting_for_master_key' WHERE user_id = {$user_id}");
         mysqlConnect(0);
         if ($locale == "farsi")
         {
@@ -208,7 +208,7 @@ function entrance()                     //handle the menu in entrance and the us
     }elseif ($text == "asK_m3_Qu3sT1an")
     {
         mysqlConnect(1);
-        mysqli_query($db, "UPDATE bot.users SET current_level = 'answering_the_entrance_question' WHERE user_id = {$user_id}");
+        mysqli_query($db, "UPDATE padporsc_bot4.users SET current_level = 'answering_the_entrance_question' WHERE user_id = {$user_id}");
         mysqlConnect(0);
         if ($locale == "farsi")
         {
@@ -231,7 +231,7 @@ function gettingMasterKey()                 //this function get and validate the
     if ($text == "Ca_nC_31")
     {
         mysqlConnect(1);
-        mysqli_query($db, "UPDATE bot.users SET current_level = 'has_email_go_to_entrance' WHERE user_id = {$user_id}");
+        mysqli_query($db, "UPDATE padporsc_bot4.users SET current_level = 'has_email_go_to_entrance' WHERE user_id = {$user_id}");
         mysqlConnect(0);
         if ($locale == "farsi") {
             makeCurl("editMessageText", ["chat_id" => $user_id, "message_id" => $message_id, "text" =>"از چه راهی میخواهی وارد مسابقه بشی؟", "reply_markup" => json_encode([
@@ -261,16 +261,45 @@ function gettingMasterKey()                 //this function get and validate the
     else{
         mysqlConnect(1);
         $b = 0;
-        $result = mysqli_query($db, "SELECT * FROM bot.teams WHERE master_key = {$text}");
+        $result = mysqli_query($db, "SELECT * FROM padporsc_bot4.teams WHERE master_key = {$text}");
         while ($row = mysqli_fetch_array($result)) {
             $b = 1;
+            $teams = mysqli_query($db, "SELECT * FROM padporsc_bot4.team{$text}");
+        }
+        $a = 0;
+        while ($row2 = mysqli_fetch_array($teams))
+        {
+            $a++;
         }
         mysqlConnect(0);
-        if ($b == 0) {
+        if ($b == 0 || $a == 0) {
             mysqlConnect(1);
-            mysqli_query($db, "UPDATE bot.users SET current_level = 'has_email_go_to_entrance' WHERE user_id = {$user_id}");
+            mysqli_query($db, "UPDATE padporsc_bot4.users SET current_level = 'has_email_go_to_entrance' WHERE user_id = {$user_id}");
             mysqlConnect(0);
-            if ($locale == "farsi")
+            if ($a == 0){
+                if ($locale == "farsi")
+                {
+                    makeCurl("sendMessage", ["chat_id" => $user_id, "text" => "ظرفیت تیم تکمیل است.", "reply_markup" => json_encode([
+                        "inline_keyboard" => [
+                            [
+                                ["text" => "ادامه", "callback_data" => "C0nT1nu3"]
+                            ]
+                        ]
+                    ])]);
+                }elseif ($locale == "english")
+                {
+                    makeCurl("sendMessage", ["chat_id" => $user_id, "text" => "Team is full", "reply_markup" => json_encode([
+                        "inline_keyboard" => [
+                            [
+                                ["text" => "Continue", "callback_data" => "C0nT1nu3"]
+                            ]
+                        ]
+                    ])]);
+                }
+            }
+            else
+            {
+                if ($locale == "farsi")
             {
                 makeCurl("sendMessage", ["chat_id" => $user_id, "text" => "شاه کلید شما پیدا نشد.", "reply_markup" => json_encode([
                     "inline_keyboard" => [
@@ -289,12 +318,20 @@ function gettingMasterKey()                 //this function get and validate the
                     ]
                 ])]);
             }
+            }
         }
         elseif ($b == 1){
             mysqlConnect(1);
-            mysqli_query($db, "INSERT INTO bot.team{$text} (user_id, group_level) VALUE ({$user_id}, 1)");
-            mysqli_query($db, "UPDATE bot.users SET team_master_key = {$text}, current_level = 'question_menu' WHERE user_id = {$user_id}");
-            $result = mysqli_query($db, "SELECT * FROM bot.teams WHERE master_key = {$text}");
+            $ans = mysqli_query($db, "SELECT * FROM padporsc_bot4.team{$text}");
+            $z = 0;
+            while ($g = mysqli_fetch_array($ans))
+                $z++;
+            $z++;
+            mysqli_query($db, "INSERT INTO padporsc_bot4.team{$text} (user_id, level) VALUE ({$user_id}, {$z})");
+            if ($z == 5)
+                mysqli_query($db,"UPDATE padporsc_bot4.teams SET open = 0 WHERE master_key = {$text} ");
+            mysqli_query($db, "UPDATE padporsc_bot4.users SET team_master_key = {$text}, current_level = 'question_menu' WHERE user_id = {$user_id}");
+            $result = mysqli_query($db, "SELECT * FROM padporsc_bot4.teams WHERE master_key = {$text}");
             while ($row = mysqli_fetch_array($result)) {
                 $teamName = $row['name'];
             }
@@ -326,9 +363,13 @@ function answeringEntranceQuestion()               //this function handle the an
     global $user_id;
     global $db;
     global $locale;
+    global $text;
     mysqlConnect(1);
-    mysqli_query($db, "UPDATE bot.users SET current_level = 'question_menu' WHERE user_id = {$user_id}");
+    mysqli_query($db, "UPDATE padporsc_bot4.users SET current_level = 'question_menu' WHERE user_id = {$user_id}");
+    $result = mysqli_query($db, "SELECT * FROM padporsc_bot4.users WHERE user_id = {$user_id}");
     mysqlConnect(0);
+    $row = mysqli_fetch_array($result);
+    mail("postmaster@discourse.padpors.com", "Entrance", $text, "From: {$row['email']}");
     if ($locale == "farsi")
         makeCurl("sendMessage", ["chat_id" => $user_id, "text" => "تبریک میگم! وارد مسابقه شدی.", "reply_markup" =>
         json_encode([
@@ -388,7 +429,7 @@ function continueHandler()                          //handle the continue button
     }
     elseif ($level == "watching_info") {
         mysqlConnect(1);
-        $result = mysqli_query($db, "SELECT * FROM bot.users WHERE user_id = {$user_id}");
+        $result = mysqli_query($db, "SELECT * FROM padporsc_bot4.users WHERE user_id = {$user_id}");
         $row = mysqli_fetch_array($result);
         mysqlConnect(0);
         if($row['question_string'] == "111111")
@@ -399,7 +440,7 @@ function continueHandler()                          //handle the continue button
     elseif ($level == "user_menu")
     {
         mysqlConnect(1);
-        $result = mysqli_query($db, "SELECT * FROM bot.users WHERE user_id = {$user_id}");
+        $result = mysqli_query($db, "SELECT * FROM padporsc_bot4.users WHERE user_id = {$user_id}");
         $row = mysqli_fetch_array($result);
         mysqlConnect(0);
         if($row['question_string'] == "111111")
@@ -409,6 +450,11 @@ function continueHandler()                          //handle the continue button
     }
     elseif ($level == "current_user")
         info(0);
+    elseif ($level == "team_menu")
+        team(0);
+    elseif ($level == "have_team_menu")
+        haveTeam(0);
+
 }
 
 function question_menu()                    //show user the questions and user menu button
@@ -418,10 +464,10 @@ function question_menu()                    //show user the questions and user m
     global $db;
     global $locale;
     mysqlConnect(1);
-    $result = mysqli_query($db, "SELECT * FROM bot.users WHERE user_id = {$user_id}");
+    $result = mysqli_query($db, "SELECT * FROM padporsc_bot4.users WHERE user_id = {$user_id}");
     $row = mysqli_fetch_array($result);
     $string = $row['question_string'];
-    mysqli_query($db,"UPDATE bot.users SET current_level = 'question_showed' WHERE user_id = {$user_id}");
+    mysqli_query($db,"UPDATE padporsc_bot4.users SET current_level = 'question_showed' WHERE user_id = {$user_id}");
     mysqlConnect(0);
     $sign = array("◻️","◻️","◻️","◻️","◻️","◻️");
     for($i = 0 ; $i < 6 ; $i++)
@@ -473,7 +519,7 @@ function questionHandling()                     //handle requests from question 
     if($text == "us3R_m3nU")
     {
         mysqlConnect(1);
-        $result = mysqli_query($db, "SELECT * FROM bot.users WHERE user_id = {$user_id}");
+        $result = mysqli_query($db, "SELECT * FROM padporsc_bot4.users WHERE user_id = {$user_id}");
         $row = mysqli_fetch_array($result);
         mysqlConnect(0);
         if($row['question_string'] == "111111")
@@ -496,7 +542,7 @@ function questionHandling()                     //handle requests from question 
         elseif ($text == "s1x_Qu3stion")
             $b = 6;
         mysqlConnect(1);
-        mysqli_query($db, "UPDATE bot.users SET current_level = 'asking_question', question_number = {$b} WHERE user_id = {$user_id}");
+        mysqli_query($db, "UPDATE padporsc_bot4.users SET current_level = 'asking_question', question_number = {$b} WHERE user_id = {$user_id}");
         mysqlConnect(0);
         askQuestion($b);
     }
@@ -583,11 +629,11 @@ function askQuestion($b)                    //ask user the chosen question LEVEL
             ]
         ])]);
     mysqlConnect(1);
-    mysqli_query($db, "UPDATE bot.users SET current_level = 'question_asked' WHERE user_id = {$user_id}");
+    mysqli_query($db, "UPDATE padporsc_bot4.users SET current_level = 'question_asked' WHERE user_id = {$user_id}");
     mysqlConnect(0);
 }
 
-function userMenu($a,$f)                    //show user the menu and handle its requests TODO create not completed
+function userMenu($a,$f)                    //show user the menu and handle its requests
 {
     global $user_id;
     global $db;
@@ -597,7 +643,7 @@ function userMenu($a,$f)                    //show user the menu and handle its 
     if($a == 1)
     {
         mysqlConnect(1);
-        mysqli_query($db, "UPDATE bot.users SET current_level = 'user_menu' WHERE user_id = {$user_id}");
+        mysqli_query($db, "UPDATE padporsc_bot4.users SET current_level = 'user_menu' WHERE user_id = {$user_id}");
         mysqlConnect(0);
         if($locale == "farsi" && $f == 0)
             makeCurl("editMessageText", ["chat_id" => $user_id, "text" => "انتخاب کن.", "message_id" => $message_id, "reply_markup" => json_encode([
@@ -695,9 +741,276 @@ function userMenu($a,$f)                    //show user the menu and handle its 
         elseif ($text == "My_sc0R3")
             score();
         elseif ($text == "mY_t3aM")
-        {
+            team(0);
+        elseif ($text == "Cr3at3_Qu3sTi0n")
+            makeQuestion(0);
+    }
+}
+
+function team($i)                           //handle creating team and choosing team
+{
+    global $user_id;
+    global $db;
+    global $text;
+    global $message_id;
+    global $locale;
+    if ($i == 0) {
+        mysqlConnect(1);
+        $result = mysqli_query($db, "SELECT * FROM padporsc_bot4.users WHERE user_id = {$user_id}");
+        mysqli_query($db, "UPDATE padporsc_bot4.users SET current_level = 'team_menu' WHERE user_id = {$user_id}");
+        mysqlConnect(0);
+        $row = mysqli_fetch_array($result);
+        if ($row['team_master_key'] == NULL) {
             if ($locale == "farsi")
-                makeCurl("editMessageText", ["message_id" => $message_id, "chat_id" => $user_id, "text" => "این بخش به زودی اضافه خواهد شد", "reply_markup" => json_encode([
+                makeCurl("editMessageText", ["message_id" => $message_id, "chat_id" => $user_id, "text" => "عضو هیچ تیمی نیستی ولی میتونی با گزینه های زیر کار تیمی رو با آدما دیگه تجربه کنی", "reply_markup" => json_encode([
+                    "inline_keyboard" => [
+                        [
+                            ["text" => "می خوام تیم بسازم", "callback_data" => "wanT_T0_Cr3Ate_T3aM"]
+                        ],
+                        [
+                            ["text" => "شاه کلید دارم", "callback_data" => "I_Hav3_MAst3R_K3y"]
+                        ],
+                        [
+                            ["text" => "انتخاب تصادفی تیم", "callback_data" => "RanD0M_T3AM"]
+                        ],
+                        [
+                            ["text" => "بازگشت", "callback_data" => "R3Turn"]
+                        ]
+                    ]
+                ])]);
+            elseif ($locale == "english")
+                makeCurl("editMessageText", ["message_id" => $message_id, "chat_id" => $user_id, "text" => "You are not in any team.Choose one below to experience TEAMWORK with others", "reply_markup" => json_encode([
+                    "inline_keyboard" => [
+                        [
+                            ["text" => "I want create a TEAM", "callback_data" => "wanT_T0_Cr3Ate_T3aM"]
+                        ],
+                        [
+                            ["text" => "I have a Master Key", "callback_data" => "I_Hav3_MAst3R_K3y"]
+                        ],
+                        [
+                            ["text" => "Random Team", "callback_data" => "RanD0M_T3AM"]
+                        ],
+                        [
+                            ["text" => "Return", "callback_data" => "R3Turn"]
+                        ]
+                    ]
+                ])]);
+        }
+        else
+            haveTeam(0);
+    }
+    elseif ($i == 1){
+        if ($text == "R3Turn")
+        {
+            mysqlConnect(1);
+            $result = mysqli_query($db, "SELECT * FROM padporsc_bot4.users WHERE user_id = {$user_id}");
+            $row = mysqli_fetch_array($result);
+            mysqlConnect(0);
+            if($row['question_string'] == "111111")
+                userMenu(1,1);
+            else
+                userMenu(1,0);
+        }
+        elseif ($text == "wanT_T0_Cr3Ate_T3aM")
+        {
+            mysqlConnect(1);
+            $result = mysqli_query($db, "SELECT * FROM padporsc_bot4.users WHERE user_id = {$user_id}");
+            $row = mysqli_fetch_array($result);
+            mysqlConnect(0);
+            if ($row['score'] < 10)
+            {
+                if ($locale == "farsi")
+                    makeCurl("editMessageText", ["chat_id" => $user_id, "message_id" => $message_id, "text" => "برای ساختن تیم حداقل باید 10 امتیاز داشته باشی.", "reply_markup" => json_encode([
+                        "inline_keyboard" =>[
+                            [
+                                ["text" => "ادامه", "callback_data" => "C0nT1nu3"]
+                            ]
+                        ]
+                    ])]);
+                elseif ($locale == "english")
+                    makeCurl("editMessageText", ["chat_id" => $user_id, "message_id" => $message_id, "text" => "For Creating a team 10 reputation is needed at least", "reply_markup" => json_encode([
+                        "inline_keyboard" =>[
+                            [
+                                ["text" => "Continue", "callback_data" => "C0nT1nu3"]
+                            ]
+                        ]
+                    ])]);
+            }
+            else{
+                mysqlConnect(1);
+                mysqli_query($db, "UPDATE padporsc_bot4.users SET current_level = 'getting_team_name' WHERE user_id = {$user_id}");
+                mysqlConnect(0);
+                if ($locale == "farsi")
+                    makeCurl("editMessageText", ["chat_id" => $user_id, "message_id" => $message_id, "text" => "اسم تیم خودت رو انتخاب کن.", "reply_markup" => json_encode([
+                        "inline_keyboard" => [
+                            [
+                                ["text" => "انصراف", "callback_data" => "CanC3l"]
+                            ]
+                        ]
+                    ])]);
+                elseif ($locale == "english")
+                    makeCurl("editMessageText", ["chat_id" => $user_id, "text" => "Choose your team name:", "reply_markup" => json_encode([
+                        "inline_keyboard" => [
+                            [
+                                ["text" => "Cancel", "callback_data" => "CanC3l"]
+                            ]
+                        ]
+                    ])]);
+            }
+        }
+        elseif ($text == "I_Hav3_MAst3R_K3y"){
+            mysqlConnect(1);
+            mysqli_query($db, "UPDATE padporsc_bot4.users SET current_level = 'get_master_key' WHERE user_id = {$user_id}");
+            mysqlConnect(0);
+            if ($locale == "farsi")
+                makeCurl("editMessageText", ["chat_id" => $user_id, "message_id" => $message_id, "text" => "شاه کلیدت رو وارد کن:", "reply_markup" => json_encode([
+                    "inline_keyboard" => [
+                        [
+                            ["text" => "انصراف", "callback_data" => "Canc3L"]
+                        ]
+                    ]
+                ])]);
+            elseif ($locale == "english")
+                makeCurl("editMessageText", ["chat_id" => $user_id, "message_id" => $message_id, "text" => "Enter Your MASTER KEY:", "reply_markup" => json_encode([
+                    "inline_keyboard" => [
+                        [
+                            ["text" => "Cancel", "callback_data" => "Canc3L"]
+                        ]
+                    ]
+                ])]);
+        }
+        elseif ($text == "RanD0M_T3AM")
+        {
+            mysqlConnect(1);
+            $result = mysqli_query($db, "SELECT * FROM padporsc_bot4.users WHERE user_id = {$user_id}");
+            $row = mysqli_fetch_array($result);
+            if ($row['random_try'] < 6)
+            {
+                $try = $row['random_try'];
+                $try++;
+                $result = mysqli_query($db, "SELECT * FROM padporsc_bot4.teams WHERE open = 1");
+                $b = 0;
+                while ( $row = mysqli_fetch_array($result) )
+                    $b++;
+                if ($b == 0)
+                {
+                    mysqli_query($db, "UPDATE padporsc_bot4.users SET current_level = 'user_menu' WHERE user_id = {$user_id}");
+                    if ($locale == "farsi")
+                        makeCurl("editMessageText", ["chat_id" => $user_id, "message_id" => $message_id, "text" => "متاسفانه تیمی با ظرفیت خالی پیدا نشد. بعدا دوباره امتحان کن.", "reply_markup" => json_encode([
+                            "inline_keyboard" => [
+                                [
+                                    ["text" => "ادامه", "callback_data" => "C0nT1nu3"]
+                                ]
+                            ]
+                        ])]);
+                    elseif ($locale == "english")
+                        makeCurl("editMessageText", ["chat_id" => $user_id, "message_id" => $message_id, "text" => "No empty team found. Try Later", "reply_markup" => json_encode([
+                            "inline_keyboard" => [
+                                [
+                                    ["text" => "Continue", "callback_data" => "C0nT1nu3"]
+                                ]
+                            ]
+                        ])]);
+                }
+                else
+                {
+                    mysqli_query($db, "UPDATE padporsc_bot4.users SET trying_log = {$try}, current_level = 'random_find' WHERE user_id = {$user_id}");
+                    $team = rand(1, $b);
+                    $b = 0;
+                    $result = mysqli_query($db, "SELECT * FROM padporsc_bot4.teams WHERE open = 1");
+                    while ($row = mysqli_fetch_array($result)) {
+                        $b++;
+                        if ($b == $team)
+                            break;
+                    }
+                    $result = mysqli_query($db, "SELECT * FROM padporsc_bot4.team{$row['master_key']}");
+                    mysqli_query($db, "UPDATE padporsc_bot4.users SET team_master_key = {$row['master_key']} WHERE user_id = {$user_id}");
+                    $num = 0;
+                    while($ros = mysqli_fetch_array($result))
+                        $num++;
+                    if ($locale == "farsi")
+                        makeCurl("editMessageText" . ["chat_id" => $user_id, "text" => "اسم تیم:{$row['name']}
+                        تعداد کاربران:{$num}", "message_id" => $message_id, "reply_markup" => json_encode([
+                                "inline_keyboard" => [
+                                    [
+                                        ["text" => "میخوام عضو بشم", "callback_data" => "Y3s_I_WanT"]
+                                    ],
+                                    [
+                                        ["text" => "نه، نمیخوام", "callback_data" => "N0_I_DonT"]
+                                    ]
+                                ]
+                            ])]);
+                    elseif ($locale == "english")
+                        makeCurl("editMessageText" . ["chat_id" => $user_id, "text" => "Team name: {$row['name']}
+                        Users: {$num}", "message_id" => $message_id, "reply_markup" => json_encode([
+                                "inline_keyboard" => [
+                                    [
+                                        ["text" => "I want this team", "callback_data" => "Y3s_I_WanT"]
+                                    ],
+                                    [
+                                        ["text" => "I don't want this team", "callback_data" => "N0_I_DonT"]
+                                    ]
+                                ]
+                            ])]);
+                }
+            }
+            else
+            {
+                mysqli_query($db, "UPDATE padporsc_bot4.users SET current_level = 'user_menu' WHERE user_id = {$user_id}");
+                if ($locale == "farsi")
+                    makeCurl("editMessageText", ["chat_id" => $user_id, "message_id" => $message_id, "text" => "در هر روز حداکثر 5 بار میتونی ازین دکمه استفاده کنی.", "reply_markup" => json_encode([
+                        "inline_keyboard" => [
+                            [
+                                ["text" => "ادامه", "callback_data" => "C0nT1nu3"]
+                            ]
+                        ]
+                    ])]);
+                elseif ($locale == "english")
+                    makeCurl("editMessageText", ["chat_id" => $user_id, "message_id" => $message_id, "text" => "You can use this button Maximum 5 Times a day", "reply_markup" => json_encode([
+                        "inline_keyboard" => [
+                            [
+                                ["text" => "Continue", "callback_data" => "C0nT1nu3"]
+                            ]
+                        ]
+                    ])]);
+            }
+            mysqlConnect(0);
+        }
+    }
+    elseif ($i == 2){
+        if ($text == "CanC3l")
+        {
+            mysqlConnect(1);
+            $result = mysqli_query($db, "SELECT * FROM padporsc_bot4.users WHERE user_id = {$user_id}");
+            $row = mysqli_fetch_array($result);
+            mysqlConnect(0);
+            if($row['question_string'] == "111111")
+                userMenu(1,1);
+            else
+                userMenu(1,0);
+        }else
+        {
+            $rand = rand(1000000000000000,9999999999999999);
+            mysqlConnect(1);
+            while(1)
+            {
+                $b = 0;
+                $result = mysqli_query($db, "SELECT * FROM padporsc_bot4.teams");
+                while($row = mysqli_fetch_array($result))
+                    if($row['team_master_key'] == $rand)
+                        $b = 1;
+                if ($b == 1)
+                    $rand = rand(1000000000000000,9999999999999999);
+                else
+                    break;
+            }
+            mysqli_query($db, "INSERT INTO padporsc_bot4.teams (master_key, name, score) VALUES ({$rand}, \"{$text}\", 0)");
+            mysqli_query($db, "UPDATE padporsc_bot4.users SET team_master_key = {$rand}, current_level = 'user_menu' WHERE user_id = {$user_id}");
+            mysqli_query($db, "CREATE TABLE padporsc_bot4.team{$rand} ( user_id INT NULL , level INT NULL )");
+            mysqli_query($db, "INSERT INTO padporsc_bot4.team{$rand} (user_id, level) VALUES ({$user_id}, 1)");
+            mysqlConnect(0);
+            if ($locale == "farsi")
+                makeCurl("sendMessage", ["chat_id" => $user_id, "text" => "بهت تبریک میگم. تیمت ساخته شد", "reply_markup" => json_encode([
                     "inline_keyboard" => [
                         [
                             ["text" => "ادامه", "callback_data" => "C0nT1nu3"]
@@ -705,7 +1018,7 @@ function userMenu($a,$f)                    //show user the menu and handle its 
                     ]
                 ])]);
             elseif ($locale == "english")
-                makeCurl("editMessageText", ["message_id" => $message_id, "chat_id" => $user_id, "text" => "Coming SOON ...", "reply_markup" => json_encode([
+                makeCurl("sendMessage", ["chat_id" => $user_id, "text" => "Congratulation, You have maded your team", "reply_markup" => json_encode([
                     "inline_keyboard" => [
                         [
                             ["text" => "Continue", "callback_data" => "C0nT1nu3"]
@@ -713,9 +1026,440 @@ function userMenu($a,$f)                    //show user the menu and handle its 
                     ]
                 ])]);
         }
-        elseif ($text == "Cr3at3_Qu3sTi0n")
-            makeQuestion(0);
     }
+    elseif ($i == 3){
+        if ($text == "Canc3L")
+        {
+            mysqlConnect(1);
+            $result = mysqli_query($db, "SELECT * FROM padporsc_bot4.users WHERE user_id = {$user_id}");
+            $row = mysqli_fetch_array($result);
+            mysqli_query($db, "UPDATE padporsc_bot4.users SET current_level = 'user_menu' WHERE user_id = {$user_id}");
+            mysqlConnect(0);
+            if($row['question_string'] == "111111")
+                userMenu(1,1);
+            else
+                userMenu(1,0);
+        }
+        else
+        {
+            mysqlConnect(1);
+            $result = mysqli_query($db, "SELECT * FROM padporsc_bot4.teams WHERE 1");
+            $b = 0;
+            while($row = mysqli_fetch_array($result))
+            {
+                if ($text == $row['master_key'])
+                {
+                    $b = 1;
+                    break;
+                }
+            }
+            if ($b == 0)
+            {
+                mysqli_query($db, "UPDATE padporsc_bot4.users SET current_level = 'user_menu' WHERE user_id = {$user_id}");
+                if ($locale == "farsi")
+                    makeCurl("sendMessage", ["chat_id" => $user_id, "text" => "تیمی با این شاه کلید پیدا نشد", "reply_markup" => json_encode([
+                        "inline_keyboard" => [
+                            [
+                                ["text" => "ادامه", "callback_data" => "C0nT1nu3"]
+                            ]
+                        ]
+                    ])]);
+                elseif ($locale == "english")
+                    makeCurl("sendMessage", ["chat_id" => $user_id, "text" => "No team found with this Master Key", "reply_markup" => json_encode([
+                        "inline_keyboard" => [
+                            [
+                                ["text" => "Continue", "callback_data" => "C0nT1nu3"]
+                            ]
+                        ]
+                    ])]);
+            }
+            elseif ($b == 1)
+            {
+                $result = mysqli_query($db, "SELECT * FROM padporsc_bot4.team{$text} WHERE 1");
+                $number = 0;
+                while($row = mysqli_fetch_array($result))
+                {
+                    $number++;
+                }
+                if ($number < 5)
+                {
+                    $number++;
+                    mysqli_query($db, "UPDATE padporsc_bot4.users SET current_level = 'user_menu', team_master_key = {$text} WHERE user_id = {$user_id}");
+                    mysqli_query($db, "INSERT INTO padporsc_bot4.team{$text} (user_id, level) VALUES ({$user_id}, {$number})");
+                    if ($number == 5)
+                        mysqli_query($db, "UPDATE padporsc_bot4.teams SET open = 0 WHERE master_key = {$text}");
+                    $result = mysqli_query($db, "SELECT * FROM padporsc_bot4.teams WHERE master_key = {$text}");
+                    $row = mysqli_fetch_array($result);
+                    if ($locale == "farsi")
+                    makeCurl("sendMessage", ["chat_id" => $user_id, "text" => "عضو تیم {$row['name']} شدی
+                    سطحت در این تیم {$number} هست. برای دیدن تیم وارد بخش تیم من شو", "reply_markup" => json_encode([
+                        "inline_keyboard" => [
+                            [
+                                ["text" => "ادامه", "callback_data" => "C0nT1nu3"]
+                            ]
+                        ]
+                    ])]);
+                    elseif ($locale == "english")
+                        makeCurl("sendMessage", ["chat_id" => $user_id, "text" => "You are now member of team {$row['name']}.
+                        Your level in team is {$number}. You can see your team in my team", "reply_markup" => json_encode([
+                            "inline_keyboard" => [
+                                [
+                                    ["text" => "Continue", "callback_data" => "C0nT1nu3"]
+                                ]
+                            ]
+                        ])]);
+                }
+                else
+                {
+                    mysqli_query($db, "UPDATE padporsc_bot4.users SET current_level = 'user_menu' WHERE user_id = {$user_id}");
+                    if ($locale == "farsi")
+                        makeCurl("sendMessage", ["chat_id" => $user_id, "text" => "ظرفیت تیم پر است", "reply_markup" => json_encode([
+                            "inline_keyboard" => [
+                                [
+                                    ["text" => "ادامه", "callback_data" => "C0nT1nu3"]
+                                ]
+                            ]
+                        ])]);
+                    elseif ($locale == "english")
+                        makeCurl("sendMessage", ["chat_id" => $user_id, "text" => "Team is full", "reply_markup" => json_encode([
+                            "inline_keyboard" => [
+                                [
+                                    ["text" => "Continue", "callback_data" => "C0nT1nu3"]
+                                ]
+                            ]
+                        ])]);
+                }
+            }
+            mysqlConnect(0);
+        }
+    }
+    elseif ($i == 4){
+        mysqlConnect(1);
+        mysqli_query($db, "UPDATE padporsc_bot4.users SET current_level = 'user_menu' WHERE user_id = {$user_id}");
+        $res = mysqli_query($db, "SELECT * FROM padporsc_bot4.users WHERE user_id = {$user_id}");
+        $row2 = mysqli_fetch_array($res);
+        $result2 = mysqli_query($db, "SELECT * FROM padporsc_bot4.teams WHERE master_key = {$row2['team_master_key']}");
+        $row3 = mysqli_fetch_array($result2);
+        $teamName = $row3['name'];
+        if ($text == "Y3s_I_WanT")
+        {
+            $ans = mysqli_query($db, "SELECT * FROM padporsc_bot4.team{$row2['team_master_key']}");
+            $z = 0;
+            while ($g = mysqli_fetch_array($ans))
+                $z++;
+            $z++;
+            mysqli_query($db, "INSERT INTO padporsc_bot4.team{$text} (user_id, level) VALUE ({$user_id}, {$z})");
+            if ($z == 5)
+                mysqli_query($db, "UPDATE padporsc_bot4.teams SET open = 0 WHERE master_key = {$row2['team_master_key']}");
+            if($locale == "farsi")
+                makeCurl("editMessageText", ["text" => " شما به تیم {$teamName} اضافه شدید", "message_id" => $message_id, "chat_id" => $user_id, "reply_markup" =>
+                    json_encode([
+                        "inline_keyboard" =>[
+                            [
+                                ["text" => "ادامه", "callback_data" => "C0nT1nu3"]
+                            ]
+                        ]
+                    ])]);
+            elseif($locale == "english")
+                makeCurl("editMessageText", ["text" => "You have been added to team {$teamName}", "message_id" => $message_id, "chat_id" => $user_id, "reply_markup" =>
+                    json_encode([
+                        "inline_keyboard" =>[
+                            [
+                                ["text" => "Continue", "callback_data" => "C0nT1nu3"]
+                            ]
+                        ]
+                    ])]);
+        }
+        elseif ($text == "N0_I_DonT")
+        {
+            mysqlConnect(1);
+            $result = mysqli_query($db, "SELECT * FROM padporsc_bot4.users WHERE user_id = {$user_id}");
+            $row = mysqli_fetch_array($result);
+            mysqlConnect(0);
+            if($row['question_string'] == "111111")
+                userMenu(1,1);
+            else
+                userMenu(1,0);
+        }
+        mysqlConnect(0);
+    }
+}
+
+function haveTeam($i)                               //handle if you have team menu TODO not complete .change name and kick should be complete
+{
+    global $user_id;
+    global $db;
+    global $text;
+    global $message_id;
+    global $locale;
+    mysqlConnect(1);
+    if ($i == 0)
+    {
+        $result = mysqli_query($db, "SELECT * FROM padporsc_bot4.users WHERE user_id = {$user_id}");
+        $row = mysqli_fetch_array($result);
+        $ress = mysqli_query($db, "SELECT * FROM padporsc_bot4.team{$row['team_master_key']} WHERE user_id = {$user_id}");
+        mysqli_query($db, "UPDATE padporsc_bot4.users SET current_level = 'have_team_menu' WHERE user_id = {$user_id}");
+        $content = mysqli_fetch_array($ress);
+        $glevel = $content['level'];
+        if ($glevel == 1)
+        {
+            if ($locale == "farsi")
+                makeCurl("editMessageText", ["chat_id" => $user_id, "message_id" => $message_id, "text" => "انتخاب کن", "reply_markup" => json_encode([
+                    "inline_keyboard" => [
+                        [
+                            ["text" => "مشاهده ی تیم", "callback_data" => "WatCh_TE3AM"]
+                        ],
+                        [
+                            ["text" => "پیام به تیم", "callback_data" => "msG_T0_T33m"],["text" => "اضافه کردن دوستان", "callback_data" => "Temamm_MASTeR_K3y"]
+                        ],
+                        [
+                            ["text" => "تغییر نام", "callback_data" => "Cjangingggg_nakek"],["text" => "حذف بازیکن", "callback_data" => "DelET3_Us3TRR"]
+                        ],
+                        [
+                            ["text" => "ترک تیم", "callback_data" => "LE3aVEEEE_TEMM"]
+                        ],
+                        [
+                            ["text" => "بازگشت", "callback_data" => "R3TUrn"]
+                        ]
+                    ]
+                ])]);
+            elseif ($locale == "english")
+                makeCurl("editMessageText", ["chat_id" => $user_id, "message_id" => $message_id, "text" => "انتخاب کن", "reply_markup" => json_encode([
+                    "inline_keyboard" => [
+                        [
+                            ["text" => "Show team", "callback_data" => "WatCh_TE3AM"]
+                        ],
+                        [
+                            ["text" => "Send message to team", "callback_data" => "msG_T0_T33m"],["text" => "Add member", "callback_data" => "Temamm_MASTeR_K3y"]
+                        ],
+                        [
+                            ["text" => "Change Name", "callback_data" => "Cjangingggg_nakek"],["text" => "Kick user", "callback_data" => "DelET3_Us3TRR"]
+                        ],
+                        [
+                            ["text" => "Leave Team", "callback_data" => "LE3aVEEEE_TEMM"]
+                        ],
+                        [
+                            ["text" => "Retrun", "callback_data" => "R3TUrn"]
+                        ]
+                    ]
+                ])]);
+        }
+        else
+        {
+            if ($locale == "farsi")
+                makeCurl("editMessageText", ["chat_id" => $user_id, "message_id" => $message_id, "text" => "انتخاب کن", "reply_markup" => json_encode([
+                    "inline_keyboard" => [
+                        [
+                            ["text" => "مشاهده ی تیم", "callback_data" => "WatCh_TE3AM"]
+                        ],
+                        [
+                            ["text" => "پیام به تیم", "callback_data" => "msG_T0_T33m"]
+                        ],
+                        [
+                            ["text" => "ترک تیم", "callback_data" => "LE3aVEEEE_TEMM"]
+                        ],
+                        [
+                            ["text" => "بازگشت", "callback_data" => "R3TUrn"]
+                        ]
+                    ]
+                ])]);
+            elseif ($locale == "english")
+                makeCurl("editMessageText", ["chat_id" => $user_id, "message_id" => $message_id, "text" => "انتخاب کن", "reply_markup" => json_encode([
+                    "inline_keyboard" => [
+                        [
+                            ["text" => "Show team", "callback_data" => "WatCh_TE3AM"]
+                        ],
+                        [
+                            ["text" => "Send message to team", "callback_data" => "msG_T0_T33m"]
+                        ],
+                        [
+                            ["text" => "Leave Team", "callback_data" => "LE3aVEEEE_TEMM"]
+                        ],
+                        [
+                            ["text" => "Retrun", "callback_data" => "R3TUrn"]
+                        ]
+                    ]
+                ])]);
+        }
+    }
+    elseif ($i == 1)
+    {
+        if ($text == "R3TUrn")
+        {
+
+            mysqli_query($db, "UPDATE padporsc_bot4.users SET current_level = 'user_menu' WHERE user_id = {$user_id}");
+            $result = mysqli_query($db, "SELECT * FROM padporsc_bot4.users WHERE user_id = {$user_id}");
+            $row = mysqli_fetch_array($result);
+
+            if($row['question_string'] == "111111")
+                userMenu(1,1);
+             else
+                userMenu(1,0);
+        }
+        elseif ($text == "WatCh_TE3AM")
+        {
+            $result = mysqli_query($db, "SELECT * FROM padporsc_bot4.users WHERE user_id = {$user_id}");
+            $row = mysqli_fetch_array($result);
+            $teamt = mysqli_query($db, "SELECT * FROM padporsc_bot4.team{$row['team_master_key']}");
+            $teamScore = 0;
+            $help = 0;
+            while ($teamr = mysqli_fetch_array($teamt))
+            {
+                $teammatet = mysqli_query($db, "SELECT * FROM padporsc_bot4.users WHERE user_id = {$teamr['user_id']}");
+                $teammater = mysqli_fetch_array($teammatet);
+                $teamScore = $teamScore + $teammater['score'];
+                if ($help == 0) {
+                    $help = 1;
+                    if ($locale == "farsi")
+                        makeCurl("editMessageText", ["message_id" => $message_id, "chat_id" => $user_id, "text" => "نام: {$teammater['user_first_name']} امتیاز: {$teammater['score']}"]);
+                    elseif ($locale == "english")
+                        makeCurl("editMessageText", ["message_id" => $message_id, "chat_id" => $user_id, "text" => "Name: {$teammater['user_first_name']} Score: {$teammater['score']}"]);
+                }
+                elseif ($help == 1)
+                {
+                    if ($locale == "farsi")
+                        makeCurl("sendMessage", ["chat_id" => $user_id, "text" => "نام: {$teammater['user_first_name']} امتیاز: {$teammater['score']}"]);
+                    elseif ($locale == "english")
+                        makeCurl("sendMessage", ["chat_id" => $user_id, "text" => "Name: {$teammater['user_first_name']} Score: {$teammater['score']}"]);
+                }
+            }
+            if ($locale == "farsi")
+                makeCurl("sendMessage", ["chat_id" => $user_id, "text" => "امتیاز تیم: {$teamScore}", "reply_markup" => json_encode([
+                    "inline_keyboard" => [
+                        [
+                            ["text" => "ادامه", "callback_data" => "C0nT1nu3"]
+                        ]
+                    ]
+                ])]);
+            elseif ($locale == "english")
+                makeCurl("sendMessage", ["chat_id" => $user_id, "text" => "Team Score: {$teamScore}", "reply_markup" => json_encode([
+                    "inline_keyboard" => [
+                        [
+                            ["text" => "Continue", "callback_data" => "C0nT1nu3"]
+                        ]
+                    ]
+                ])]);
+        }
+        elseif ($text == "msG_T0_T33m")
+        {
+            mysqli_query($db, "UPDATE padporsc_bot4.users SET current_level = 'send_message' WHERE user_id = {$user_id}");
+            if ($locale == "farsi")
+                makeCurl("editMessageText", ["chat_id" => $user_id, "text" => "پیامت رو وارد کن:", "message_id" => $message_id, "reply_markup" => json_encode([
+                    "inline_keyboard" => [
+                        [
+                            ["text" => "انصراف", "callback_data" => "CancELL"]
+                        ]
+                    ]
+                ])]);
+            elseif ($locale == "english")
+                makeCurl("editMessageText", ["chat_id" => $user_id, "message_id" => $message_id, "text" => "Enter Your Message:", "reply_markup" => json_encode([
+                    "inline_keyboard" => [
+                        [
+                            ["text" => "Cancel", "callback_data" => "CancELL"]
+                        ]
+                    ]
+                ])]);
+        }
+        elseif ($text == "LE3aVEEEE_TEMM")
+        {
+            mysqli_query($db, "UPDATE padporsc_bot4.users SET current_level = 'leaving' WHERE user_id = {$user_id}");
+            if ($locale == "farsi")
+                makeCurl("editMessageText", ["chat_id" => $user_id, "message_id" => $message_id, "text" => "من فک کنم آدمای خوبین، مطمئنی میخواهی بری بیرون؟", "reply_markup" => json_encode([
+                    "inline_keyboard" => [
+                        [
+                            ["text" => "آره، جای من دیگه اینجا نیست", "callback_data" => "Y3SESS"]
+                        ],
+                        [
+                            ["text" => "نه بابا، شوخی کردم.", "callback_data" => "NO0OOOoo"]
+                        ]
+                      ]
+                ])
+                ]);
+            elseif ($locale == "english")
+                makeCurl("editMessageText", ["chat_id" => $user_id, "message_id" => $message_id, "text" => "Are you Sure:", "reply_markup" => json_encode([
+                    "inline_keyboard" => [
+                        [
+                            ["text" => "Yes,I am", "callback_data" => "Y3SESS"]
+                        ],
+                        [
+                            ["text" => "Noooo", "callback_data" => "NO0OOOoo"]
+                        ]
+                    ]
+                ])
+                ]);
+        }
+        elseif ($text == "Temamm_MASTeR_K3y")
+        {
+            $result = mysqli_query($db, "SELECT * FROM padporsc_bot4.users WHERE user_id = {$user_id}");
+            $row = mysqli_fetch_array($result);
+            if ($locale == "farsi")
+                makeCurl("editMessageText", ["chat_id" => $user_id, "message_id" => $message_id, "text" => $row['team_master_key'], "reply_markup" => json_encode([
+                    "inline_keyboard" => [
+                        [
+                            ["text" => "اینو بده به دوستت تا باهاش بیاد توی تیمت", "callback_data" => "C0nT1nu3"]
+                        ]
+                    ]
+                ])]);
+            elseif ($locale == "english")
+                makeCurl("editMessageText", ["chat_id" => $user_id, "message_id" => $message_id, "text" => $row['team_master_key'], "reply_markup" => json_encode([
+                    "inline_keyboard" => [
+                        [
+                            ["text" => "Give it to your friend to enter the team", "callback_data" => "C0nT1nu3"]
+                        ]
+                    ]
+                ])]);
+        }
+    }
+    mysqlConnect(0);
+}
+
+function leaving()                  //used when user want to leave a team
+{
+    global $user_id;
+    global $db;
+    global $text;
+    global $message_id;
+    global $locale;
+    if ($text == "Y3SESS")
+    {
+        mysqlConnect(1);
+        $result = mysqli_query($db, "SELECT * FROM padporsc_bot4.users WHERE user_id = {$user_id}");
+        $row = mysqli_fetch_array($result);
+        $result2 = mysqli_query($db, "SELECT * FROM padporsc_bot4.team{$row['team_master_key']}");
+        $result3 = mysqli_query($db, "SELECT * FROM padporsc_bot4.team{$row['team_master_key']} WHERE user_id = {$user_id}");
+        $row3 = mysqli_fetch_array($result3);
+        $ulevel = $row3['level'];
+        while ($row2 = mysqli_fetch_array($result2))
+        {
+            if ($row2['level'] > $ulevel )
+            {
+                $h = $row2['level'];
+                $h--;
+                mysqli_query($db, "UPDATE padporsc_bot4.team{$row['team_master_key']} SET level = {$h} WHERE user_id = {$row2['user_id']}");
+            }
+        }
+        mysqli_query($db, "DELETE FROM padporsc_bot4.team{$row['team_master_key']} WHERE user_id = {$user_id}");
+        mysqli_query($db, "UPDATE padporsc_bot4.users SET team_master_key = NULL, current_level = 'user_menu' WHERE user_id = {$user_id}");
+        if ($locale == "farsi")
+            makeCurl("editMessageText", ["message_id" => $message_id, "chat_id" => $user_id, "text" => "از تیم اومدی بیرون", "reply_markup" => json_encode([
+                "inline_keyboard" => [
+                    [
+                        ["text" => "ادامه", "callback_data" => "C0nT1nu3"]
+                    ]
+                ]
+            ])]);
+        elseif ($locale == "english")
+            makeCurl("editMessageText", ["message_id" => $message_id, "chat_id" => $user_id, "text" => "You have exited the team", "reply_markup" => json_encode([
+                "inline_keyboard" => [
+                    [
+                        ["text" => "Continue", "callback_data" => "C0nT1nu3"]
+                    ]
+                ]
+            ])]);
+        mysqlConnect(0);
+    }
+    elseif ($text == "NO0OOOoo")
+        haveTeam(0);
 }
 
 function makeQuestion($i)                       //make question and change level to making_question
@@ -728,7 +1472,7 @@ function makeQuestion($i)                       //make question and change level
     if ($i == 0)
     {
         mysqlConnect(1);
-        mysqli_query($db, "UPDATE bot.users SET current_level = 'making_question' WHERE user_id = {$user_id}");
+        mysqli_query($db, "UPDATE padporsc_bot4.users SET current_level = 'making_question' WHERE user_id = {$user_id}");
         mysqlConnect(0);
         if ($locale == "farsi")
             makeCurl("editMessageText", ["chat_id" => $user_id, "message_id" => $message_id, "text" => "سوال خودت رو مطرح کن", "reply_markup" => json_encode([
@@ -774,11 +1518,11 @@ function makeQuestion($i)                       //make question and change level
             elseif (recognize($text) == 1)
             {
                 mysqlConnect(1);
-                $result = mysqli_query($db, "SELECT * FROM bot.users WHERE user_id = {$user_id}");
+                $result = mysqli_query($db, "SELECT * FROM padporsc_bot4.users WHERE user_id = {$user_id}");
                 $row = mysqli_fetch_array($result);
-                mysqli_query($db, "UPDATE bot.users SET current_level = 'user_menu' WHERE user_id = {$user_id}");
+                mysqli_query($db, "UPDATE padporsc_bot4.users SET current_level = 'user_menu' WHERE user_id = {$user_id}");
+                mail("postmaster@discourse.padpors.com", "User's Question", $text, "From: {$row['email']}");
                 mysqlConnect(0);
-                mail("content.padpors@gmail.com", returnQuestion($row['question_number']), $text, "From: {$row['email']}");
                 if ($locale == "farsi")
                     makeCurl("sendMessage", ["chat_id" => $user_id, "text" => "سوالت ثبت شد", "reply_markup" => json_encode([
                         "inline_keyboard" => [
@@ -807,7 +1551,7 @@ function score()                                //calculate the score
     global $message_id;
     global $locale;
     mysqlConnect(1);
-    $result = mysqli_query($db, "SELECT * FROM bot.users WHERE user_id = {$user_id}");
+    $result = mysqli_query($db, "SELECT * FROM padporsc_bot4.users WHERE user_id = {$user_id}");
     $row = mysqli_fetch_array($result);
     if ($row['padpors_username'])
         $username = $row['padpors_username'];
@@ -824,7 +1568,7 @@ function score()                                //calculate the score
         $score = $answer -> user_summary -> likes_received;
     if ($row['logged_in'] == 1)
         $score = $score + 5;
-    mysqli_query($db, "UPDATE bot.users SET score = {$score} WHERE user_id = {$user_id}");
+    mysqli_query($db, "UPDATE padporsc_bot4.users SET score = {$score} WHERE user_id = {$user_id}");
     mysqlConnect(0);
     if ($locale == "farsi")
         makeCurl("editMessageText", ["message_id" => $message_id, "chat_id" => $user_id, "text" => "اعتبار شما: {$score}", "reply_markup" => json_encode([
@@ -844,7 +1588,7 @@ function score()                                //calculate the score
         ])]);
 }
 
-function info($i)                       //show and handle my info button  TODO my padpors not complete
+function info($i)                       //show and handle my info button
 {
     global $message_id;
     global $user_id;
@@ -854,8 +1598,8 @@ function info($i)                       //show and handle my info button  TODO m
     if($i == 0)
     {
         mysqlConnect(1);
-        mysqli_query($db, "UPDATE bot.users SET current_level = 'watching_info' WHERE user_id = {$user_id}");
-        $result = mysqli_query($db, "SELECT * FROM bot.users WHERE user_id = {$user_id}");
+        mysqli_query($db, "UPDATE padporsc_bot4.users SET current_level = 'watching_info' WHERE user_id = {$user_id}");
+        $result = mysqli_query($db, "SELECT * FROM padporsc_bot4.users WHERE user_id = {$user_id}");
         mysqlConnect(0);
         $row = mysqli_fetch_array($result);
         if ($row['logged_in'] == 0) {
@@ -924,7 +1668,7 @@ function info($i)                       //show and handle my info button  TODO m
         if ($text == "R3tuRn")
         {
             mysqlConnect(1);
-            $result = mysqli_query($db, "SELECT * FROM bot.users WHERE user_id = {$user_id}");
+            $result = mysqli_query($db, "SELECT * FROM padporsc_bot4.users WHERE user_id = {$user_id}");
             $row = mysqli_fetch_array($result);
             mysqlConnect(0);
             if($row['question_string'] == "111111")
@@ -942,7 +1686,7 @@ function info($i)                       //show and handle my info button  TODO m
     }
 }
 
-function account($i)                    //sync user's padpors account with padbot
+function account($i)                    //sync user's padpors account with padbot and make account
 {
     global $message_id;
     global $user_id;
@@ -952,7 +1696,7 @@ function account($i)                    //sync user's padpors account with padbo
     if ($i == 0)
     {
         mysqlConnect(1);
-        mysqli_query($db, "UPDATE bot.users SET current_level = 'how_Enter' WHERE user_id = {$user_id}");
+        mysqli_query($db, "UPDATE padporsc_bot4.users SET current_level = 'how_Enter' WHERE user_id = {$user_id}");
         mysqlConnect(0);
         if ($locale == "farsi")
             makeCurl("editMessageText", ["chat_id" => $user_id, "message_id" => $message_id, "text" => "یکی از گزینه هارو انتخاب کن.", "reply_markup" => json_encode([
@@ -1007,30 +1751,55 @@ function account($i)                    //sync user's padpors account with padbo
             ])]);
 
         mysqlConnect(1);
-        mysqli_query($db, "UPDATE bot.users SET current_level = 'current_user' WHERE user_id = {$user_id}");
+        mysqli_query($db, "UPDATE padporsc_bot4.users SET current_level = 'current_user' WHERE user_id = {$user_id}");
         mysqlConnect(0);
         }
         elseif ($text == "MAK3_ACc0uNt")
         {
             mysqlConnect(1);
-            mysqli_query($db, "UPDATE bot.users SET current_level = 'user_menu' WHERE user_id = {$user_id}");
+            mysqli_query($db, "UPDATE padporsc_bot4.users SET current_level = 'getting_username_for_sign_up' WHERE user_id = {$user_id}");
+            $result3 = mysqli_query($db, "SELECT * FROM padporsc_bot4.users WHERE user_id = {$user_id}");
             mysqlConnect(0);
-            if ($locale == "farsi")
-                makeCurl("editMessageText", ["chat_id" => $user_id, "message_id" => $message_id, "text" => "این بخش به زودی اضافه خواهد شد.", "reply_markup" => json_encode([
-                    "inline_keyboard" =>[
-                        [
-                            ["text" => "ادامه", "callback_data" => "C0nT1nu3"]
+            $row3 = mysqli_fetch_array($result3);
+            if ($row3['trying_log'] == 0) {
+                if ($locale == "farsi")
+                    makeCurl("editMessageText", ["chat_id" => $user_id, "message_id" => $message_id, "text" => "نام کاربری دلخواهت رو وارد کن تا ما برات اکانت بسازیم", "reply_markup" => json_encode([
+                        "inline_keyboard" => [
+                            [
+                                ["text" => "انصراف", "callback_data" => "CAnc3l"]
+                            ]
                         ]
-                    ]
-                ])]);
-            elseif ($locale == "english")
-                makeCurl("editMessageText", ["chat_id" => $user_id, "message_id" => $message_id, "text" => "Coming SOON", "reply_markup" => json_encode([
-                    "inline_keyboard" =>[
-                        [
-                            ["text" => "Continue", "callback_data" => "C0nT1nu3"]
+                    ])]);
+                elseif ($locale == "english")
+                    makeCurl("editMessageText", ["chat_id" => $user_id, "message_id" => $message_id, "text" => "Enter Your Username", "reply_markup" => json_encode([
+                        "inline_keyboard" => [
+                            [
+                                ["text" => "Cancel", "callback_data" => "CAnc3l"]
+                            ]
                         ]
-                    ]
-                ])]);
+                    ])]);
+            }
+            elseif ($row3['trying_log'] == 1){
+                mysqlConnect(1);
+                mysqli_query($db, "UPDATE padporsc_bot4.users SET current_level = 'user_menu' WHERE user_id = {$user_id}");
+                mysqlConnect(0);
+                if ($locale == "farsi")
+                    makeCurl("editMessageText", ["message_id" =>$message_id, "chat_id" => $user_id, "text" => "قبلا ثبت نام کردی. یا وارد بات شو و یا اگه اشتباه کردی میتونی بری توی سایت و اونجا حساب کاربری بسازی", "reply_markup" => json_encode([
+                        "inline_keyboard" => [
+                            [
+                                ["text" => "ادامه", "callback_data" => "C0nT1nu3"]
+                            ]
+                        ]
+                    ])]);
+                elseif ($locale == "english")
+                    makeCurl("editMessageText", ["message_id" => $message_id, "chat_id" => $user_id, "text" => "you can't make account any more here", "reply_markup" => json_encode([
+                        "inline_keyboard" => [
+                            [
+                                ["text" => "Continue", "callback_data" => "C0nT1nu3"]
+                            ]
+                        ]
+                    ])]);
+            }
         }
     }
     elseif ($i == 2)
@@ -1058,7 +1827,7 @@ function account($i)                    //sync user's padpors account with padbo
         else
         {
             mysqlConnect(1);
-            $result = mysqli_query($db, "SELECT * FROM bot.users WHERE user_id = {$user_id}");
+            $result = mysqli_query($db, "SELECT * FROM padporsc_bot4.users WHERE user_id = {$user_id}");
             $row = mysqli_fetch_array($result);
             mysqlConnect(0);
             $email = $row['email'];
@@ -1070,10 +1839,10 @@ function account($i)                    //sync user's padpors account with padbo
                 if(strcasecmp($username ,$text) == 0)
                 {
                     mysqlConnect(1);
-                    $result2 = mysqli_query($db, "SELECT * FROM bot.users WHERE user_id = {$user_id}");
+                    $result2 = mysqli_query($db, "SELECT * FROM padporsc_bot4.users WHERE user_id = {$user_id}");
                     $row2 = mysqli_fetch_array($result2);
                     $score = $row2['score'];
-                    mysqli_query($db, "UPDATE bot.users SET current_level = 'user_menu',score = $score, padpors_username = \"{$username}\", logged_in = 1 WHERE user_id = {$user_id}");
+                    mysqli_query($db, "UPDATE padporsc_bot4.users SET current_level = 'user_menu',score = $score, padpors_username = \"{$username}\", logged_in = 1 WHERE user_id = {$user_id}");
                     mysqlConnect(0);
                     if ($locale == "farsi")
                         makeCurl("sendMessage", ["chat_id" => $user_id, "text" => "تبریک. شما وارد شدید و 5 امتیاز هدیه گرفتید.", "reply_markup" => json_encode([
@@ -1130,6 +1899,87 @@ function account($i)                    //sync user's padpors account with padbo
             }
         }
     }
+    elseif ($i == 3)
+    {
+        if ($text == "CAnc3l")
+            info(0);
+        else
+        {
+            mysqlConnect(1);
+            mysqli_query($db, "UPDATE padporsc_bot4.users SET padpors_username = \"{$text}\", current_level = 'getting_password' WHERE user_id = {$user_id}");
+            mysqlConnect(0);
+            if ($locale == "farsi")
+                makeCurl("sendMessage", ["chat_id" => $user_id, "text" => "حالا رمزت رو وارد کن."]);
+            elseif ($locale == "english")
+                makeCurl("sendMessage", ["chat_id" => $user_id, "text" => "Enter your password now"]);
+        }
+    }
+    elseif ($i == 4)
+    {
+        mysqlConnect(1);
+        $result = mysqli_query($db, "SELECT * FROM padporsc_bot4.users WHERE user_id = {$user_id}");
+        mysqlConnect(0);
+        $row = mysqli_fetch_array($result);
+        $ch = curl_init();
+        curl_setopt($ch, CURLOPT_URL,"http://localhost:3000/users/");
+        curl_setopt($ch, CURLOPT_POST, 1);
+        curl_setopt($ch, CURLOPT_POSTFIELDS,http_build_query(["username" => $row['padpors_username'] , "password" => $text, "email" => $row['email'], "api_key" => "7ebc7612d834903389f9855b96171aaa69c30635abfcdffd33a36d4fc15c4f12", "api_username" => "alavi", "acive" => false]));     //TODO this should be real api
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+        $server_output = curl_exec ($ch);
+        curl_close ($ch);
+        echo $server_output;
+        $ans2 = json_decode($server_output);
+        echo $ans2 -> message;
+        if ($ans2 -> success)
+        {
+            mysqlConnect(1);
+            mysqli_query($db, "UPDATE padporsc_bot4.users SET trying_log = 1, current_level = 'user_menu' WHERE user_id = {$user_id}");
+            mysqlConnect(0);
+            if ($locale == "farsi")
+                makeCurl("sendMessage", ["chat_id" => $user_id, "text" => "توی سایت ثبت نام شدی حالا فقط کافیه بری توی ایمیلت و ثبت نامت رو تایید کنی.", "reply_markup" => json_encode([
+                    "inline_keyboard" => [
+                        [
+                            ["text" => "ادامه", "callback_data" => "C0nT1nu3"]
+                        ]
+                    ]
+                ])]);
+            elseif ($locale == "english")
+                makeCurl("sendMessage", ["chat_id" => $user_id, "text" => "SignUp complete. You need to verify your account in your email.", "reply_markup" => json_encode([
+                    "inline_keyboard" => [
+                        [
+                            ["text" => "Continue", "callback_data" => "C0nT1nu3"]
+                        ]
+                    ]
+                ])]);
+        }else
+        {
+            mysqlConnect(1);
+            mysqli_query($db, "UPDATE padporsc_bot4.users SET current_level = 'user_menu', padpors_username = NULL WHERE user_id = {$user_id}");
+            mysqlConnect(0);
+            if ($locale == "farsi") {
+                makeCurl("sendMessage", ["text" => "ثبت نام شما با خطای زیر مواجه شد.", "chat_id" => $user_id]);
+                makeCurl("sendMessage", ["text" => $ans2->message, "chat_id" => $user_id]);
+                makeCurl("sendMessage", ["text" => "برای ادامه کلیک کنید.", "chat_id" => $user_id, "reply_markup" => json_encode([
+                    "inline_keyboard" => [
+                        [
+                            ["text" => "ادامه", "callback_data" =>"C0nT1nu3"]
+                        ]
+                    ]
+                ])]);
+            }
+            elseif ($locale == "english"){
+                makeCurl("sendMessage", ["text" => "Solve following errors", "chat_id" => $user_id]);
+                makeCurl("sendMessage", ["text" => $ans2->message, "chat_id" => $user_id]);
+                makeCurl("sendMessage", ["text" => "Click for continue", "chat_id" => $user_id, "reply_markup" => json_encode([
+                    "inline_keyboard" => [
+                        [
+                            ["text" => "Continue", "callback_data" =>"C0nT1nu3"]
+                        ]
+                    ]
+                ])]);
+            }
+        }
+    }
 }
 
 function myEmail($i)                            //used to show user his email and change his email
@@ -1142,8 +1992,8 @@ function myEmail($i)                            //used to show user his email an
     if($i == 0)
     {
         mysqlConnect(1);
-        mysqli_query($db, "UPDATE bot.users SET current_level = 'changing_email' WHERE user_id = {$user_id}");
-        $result = mysqli_query($db, "SELECT * FROM bot.users WHERE user_id = {$user_id}");
+        mysqli_query($db, "UPDATE padporsc_bot4.users SET current_level = 'changing_email' WHERE user_id = {$user_id}");
+        $result = mysqli_query($db, "SELECT * FROM padporsc_bot4.users WHERE user_id = {$user_id}");
         mysqlConnect(0);
         $row = mysqli_fetch_array($result);
         if ($locale == "farsi")
@@ -1155,7 +2005,7 @@ function myEmail($i)                            //used to show user his email an
                     ]
                 ]
             ])]);
-        elseif ($lcale == "english")
+        elseif ($locale == "english")
             makeCurl("editMessageText", ["chat_id" => $user_id, "message_id" => $message_id, "text" => "Your Email: {$row['email']}
             Enter New Email If you want to change it", "reply_markup" => json_encode([
                 "inline_keyboard" => [
@@ -1172,7 +2022,7 @@ function myEmail($i)                            //used to show user his email an
         else
         {
             mysqlConnect(1);
-            mysqli_query($db, "UPDATE bot.users SET current_level = 'watching_info', email = \"{$text}\" WHERE user_id = {$user_id}");
+            mysqli_query($db, "UPDATE padporsc_bot4.users SET current_level = 'watching_info', email = \"{$text}\" WHERE user_id = {$user_id}");
             mysqlConnect(0);
             if ($locale == "farsi")
                 makeCurl("sendMessage", ["chat_id" => $user_id, "text" => "ایمیل شما با موفقیت تغییر یافت", "reply_markup" => json_encode([
@@ -1204,7 +2054,7 @@ function changeLang($i)                 //show and change the language for user
     if ($i == 0)
     {
         mysqlConnect(1);
-        mysqli_query($db, "UPDATE bot.users SET current_level = 'watching_change_language' WHERE user_id = {$user_id}");
+        mysqli_query($db, "UPDATE padporsc_bot4.users SET current_level = 'watching_change_language' WHERE user_id = {$user_id}");
         mysqlConnect(0);
         if ($locale == "farsi")
             makeCurl("editMessageText", ["chat_id" => $user_id, "message_id" => $message_id, "text" => "انتخاب کن.", "reply_markup" => json_encode([
@@ -1232,7 +2082,7 @@ function changeLang($i)                 //show and change the language for user
     elseif ($i == 1)
     {
         mysqlConnect(1);
-        $result = mysqli_query($db, "SELECT * FROM bot.users WHERE user_id = {$user_id}");
+        $result = mysqli_query($db, "SELECT * FROM padporsc_bot4.users WHERE user_id = {$user_id}");
         $row = mysqli_fetch_array($result);
         mysqlConnect(0);
         if($row['question_string'] == "111111")
@@ -1245,7 +2095,7 @@ function changeLang($i)                 //show and change the language for user
         {
             $locale = "farsi";
             mysqlConnect(1);
-            mysqli_query($db, "UPDATE bot.users SET locale = 'farsi' WHERE user_id = {$user_id}");
+            mysqli_query($db, "UPDATE padporsc_bot4.users SET locale = 'farsi' WHERE user_id = {$user_id}");
             mysqlConnect(0);
             userMenu(1, $b);
         }
@@ -1253,7 +2103,7 @@ function changeLang($i)                 //show and change the language for user
         {
             $locale = "english";
             mysqlConnect(1);
-            mysqli_query($db, "UPDATE bot.users SET locale = 'english' WHERE user_id = {$user_id}");
+            mysqli_query($db, "UPDATE padporsc_bot4.users SET locale = 'english' WHERE user_id = {$user_id}");
             mysqlConnect(0);
             userMenu(1, $b);
         }
@@ -1272,7 +2122,7 @@ function startAsking()                      //handle the first request to bot af
     else
     {
         mysqlConnect(1);
-        mysqli_query($db, "UPDATE bot.users SET current_level = 'answering', current_content = \"{$text}\" WHERE user_id = {$user_id}");
+        mysqli_query($db, "UPDATE padporsc_bot4.users SET current_level = 'answering', current_content = \"{$text}\" WHERE user_id = {$user_id}");
         mysqlConnect(0);
         if ($locale == "farsi")
             makeCurl("sendMessage", ["chat_id" => $user_id, "text" => "اگه پاسخت تموم شد، بزن روی دکمه ی زیر.وگرنه هنوز میتونی به نوشتنت ادامه بدی و پاسخت رو تکمیل کنی.",
@@ -1307,18 +2157,18 @@ function answering()                    //after answering this function will han
     if ($text == "3nD_iT")
     {
         mysqlConnect(1);
-        $result = mysqli_query($db, "SELECT * FROM bot.users WHERE user_id = {$user_id}");
+        $result = mysqli_query($db, "SELECT * FROM padporsc_bot4.users WHERE user_id = {$user_id}");
         $row = mysqli_fetch_array($result);
         $qstring = $row['question_string'];
         $qstring[$row['question_number'] - 1] = "1";
-        mysqli_query($db, "UPDATE bot.users SET current_level = 'question_menu', current_content = NULL , question_number = 0 , question_string = \"{$qstring}\" WHERE user_id = {$user_id}");
+        mysqli_query($db, "UPDATE padporsc_bot4.users SET current_level = 'question_menu', current_content = NULL , question_number = 0 , question_string = \"{$qstring}\" WHERE user_id = {$user_id}");
         if ($row['team_master_key'])
             $team = $row['team_master_key'];
         else
             $team = 0;
-        mysqli_query($db, "INSERT INTO bot.user{$user_id} (content, question_number, group_of_answer_master_key) VALUES (\"{$row['current_content']}\", {$row['question_number']}, {$team})");
+        mysqli_query($db, "INSERT INTO padporsc_bot4.user{$user_id} (content, question_number, group_of_answer_master_key) VALUES (\"{$row['current_content']}\", {$row['question_number']}, {$team})");
         mysqlConnect(0);
-        mail("content.padpors@gmail.com", returnQuestion($row['question_number']), $row['content'], "From: {$row['email']}");
+        mail("postmaster@discourse.padpors.com", returnQuestion($row['question_number']), $row['current_content'], "From: {$row['email']}");
         if ($locale == "farsi")
             makeCurl("editMessageText", ["chat_id" => $user_id, "message_id" => $message_id, "text" => "ممنون ازین که به این سوال پاسخ دادی.", "reply_markup" => json_encode([
                 "inline_keyboard" => [
@@ -1362,12 +2212,12 @@ function answering()                    //after answering this function will han
     }
     elseif (recognize($text) == 1){
         mysqlConnect(1);
-        $result=mysqli_query($db,"SELECT * FROM bot.users WHERE user_id={$user_id}");
+        $result=mysqli_query($db,"SELECT * FROM padporsc_bot4.users WHERE user_id={$user_id}");
         $row = mysqli_fetch_array($result);
-        $content = $row['content'];
+        $content = $row['current_content'];
         $content .= " ";
         $content .= $text;
-        mysqli_query($db,"UPDATE bot.users set  current_content = \"{$content}\" WHERE user_id={user_id}");
+        mysqli_query($db,"UPDATE padporsc_bot4.users set  current_content = \"{$content}\" WHERE user_id={$user_id}");
         if ($locale == "farsi")
             makeCurl("sendMessage", ["chat_id" => $user_id, "text" => "اگه پاسخت تموم شد، بزن روی دکمه ی زیر.وگرنه هنوز میتونی به نوشتنت ادامه بدی و پاسخت رو تکمیل کنی.",
                 "reply_markup" => json_encode([
@@ -1388,6 +2238,52 @@ function answering()                    //after answering this function will han
                     ]
                 ])
             ]);
+    }
+}
+
+function send()
+{
+    global $user_id;
+    global $db;
+    global $text;
+    global $user_firstname;
+    global $locale;
+    if ($text == "CancELL")
+        haveTeam(0);
+    else
+    {
+        mysqlConnect(1);
+        $result = mysqli_query($db, "SELECT * FROM padporsc_bot4.users WHERE user_id = {$user_id}");
+        $row = mysqli_fetch_array($result);
+        $result = mysqli_query($db, "SELECT * FROM padporsc_bot4.team{$row['team_master_key']}");
+        while ($row = mysqli_fetch_array($result))
+        {
+            if ($row['user_id'] != $user_id)
+            {
+                if ($locale == "farsi")
+                    makeCurl("sendMessage", ["chat_id" => $row['user_id'], "text" => "{$user_firstname}✉️:{$text}"]);
+                elseif ($loacle == "english")
+                    makeCurl("sendMessage", ["chat_id" => $row['user_id'], "text" => "{$user_firstname}✉️:{$text}"]);
+            }
+        }
+        mysqli_query($db, "UPDATE padporsc_bot4.users SET current_level = 'team_menu' WHERE  user_id = {$user_id}");
+        if ($locale == "farsi")
+            makeCurl("sendMessage", ["chat_id" => $user_id, "text" => "پیامت ارسال شد.", "reply_markup" => json_encode([
+                "inline_keyboard" => [
+                    [
+                        ["text" => "ادامه", "callback_data" => "C0nT1nu3"]
+                    ]
+                ]
+            ])]);
+        elseif ($locale == "english")
+            makeCurl("sendMessage", ["chat_id" => $user_id, "text" => "Your Message Sent", "reply_markup" => json_encode([
+                "inline_keyboard" => [
+                    [
+                        ["text" => "Continue", "callback_data" => "C0nT1nu3"]
+                    ]
+                ]
+            ])]);
+        mysqlConnect(0);
     }
 }
 
@@ -1455,10 +2351,29 @@ function main()
                 account(1);
             elseif ($level == "current_user")
                 account(2);
+            elseif ($level == "getting_username_for_sign_up")
+                account(3);
+            elseif ($level == "getting_password")
+                account(4);
+            elseif ($level == "team_menu")
+                team(1);
+            elseif ($level == "getting_team_name")
+                team(2);
+            elseif ($level == "get_master_key")
+                team(3);
+            elseif ($level == "random_find")
+                team(4);
+            elseif ($level == "have_team_menu")
+                haveTeam(1);
+            elseif ($level == "send_message")
+                send();
+            elseif ($level == "leaving")
+                leaving();
             $last_updated_id = $update->update_id;              //should be removed
         }           //should be removed
     }               //should be removed
 }
+
 while(1) {
     main();
 }
