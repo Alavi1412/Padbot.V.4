@@ -1106,7 +1106,7 @@ function team($i)                           //handle creating team and choosing 
                 {
                     mysqli_query($db, "UPDATE padporsc_bot4.users SET current_level = 'user_menu' WHERE user_id = {$user_id}");
                     if ($locale == "farsi")
-                         makeCurl("editMessageText", ["chat_id" => $user_id, "message_id" => $message_id, "text" => "متاسفانه تیمی با ظرفیت خالی پیدا نشد. بعدا دوباره امتحان کن.", "reply_markup" => json_encode([
+                         makeCurl("editMessageText", ["chat_id" => $user_id, "message_id" => $message_id, "text" => "متاسفانه تیمی متناسب با تو پیدا نشد. بعدا دوباره امتحان کن.", "reply_markup" => json_encode([
                             "inline_keyboard" => [
                                 [
                                     ["text" => "ادامه", "callback_data" => "C0nT1nu3"]
@@ -1411,6 +1411,20 @@ function haveTeam($i)                               //handle if you have team me
         $ress = mysqli_query($db, "SELECT * FROM padporsc_bot4.team{$row['team_master_key']} WHERE user_id = {$user_id}");
         mysqli_query($db, "UPDATE padporsc_bot4.users SET current_level = 'have_team_menu' WHERE user_id = {$user_id}");
         $content = mysqli_fetch_array($ress);
+        $teem = mysqli_query($db, "SELECT * FROM padporsc_bot4.teams WHERE master_key = {$row['team_master_key']}");
+        $rrr = mysqli_fetch_array($teem);
+        if ($rrr['open'] == 1 ) {
+            if ($locale == "farsi")
+                $sre = "بستن تیم";
+            elseif ($locale == "english")
+                $sre = "Close Team";
+        }
+        elseif ($rrr['open'] == 0) {
+            if ($locale == "farsi")
+                $sre = "باز کردن تیم";
+            elseif ($locale == "english")
+                $sre = "Open Team";
+        }
         $glevel = $content['level'];
         if ($glevel == 1)
         {
@@ -1418,7 +1432,7 @@ function haveTeam($i)                               //handle if you have team me
                 makeCurl("editMessageText", ["chat_id" => $user_id, "message_id" => $message_id, "text" => "انتخاب کن", "reply_markup" => json_encode([
                     "inline_keyboard" => [
                         [
-                            ["text" => "مشاهده ی تیم", "callback_data" => "WatCh_TE3AM"],["text" => "تیم در جستوجوی تصادفی", "callback_data" => "Clos33_RAndomm"]
+                            ["text" => "مشاهده ی تیم", "callback_data" => "WatCh_TE3AM"],["text" => $sre, "callback_data" => "Clos33_RAndomm"]
                         ],
                         [
                             ["text" => "پیام به تیم", "callback_data" => "msG_T0_T33m"],["text" => "اضافه کردن دوستان", "callback_data" => "Temamm_MASTeR_K3y"]
@@ -1438,7 +1452,7 @@ function haveTeam($i)                               //handle if you have team me
                 makeCurl("editMessageText", ["chat_id" => $user_id, "message_id" => $message_id, "text" => "Choose", "reply_markup" => json_encode([
                     "inline_keyboard" => [
                         [
-                            ["text" => "Show team", "callback_data" => "WatCh_TE3AM"],["text" => "Random search", "callback_data" => "Clos33_RAndomm"]
+                            ["text" => "Show team", "callback_data" => "WatCh_TE3AM"],["text" => $sre, "callback_data" => "Clos33_RAndomm"]
                         ],
                         [
                             ["text" => "Send message to team", "callback_data" => "msG_T0_T33m"],["text" => "Add member", "callback_data" => "Temamm_MASTeR_K3y"]
@@ -1629,8 +1643,9 @@ function haveTeam($i)                               //handle if you have team me
             if ($row3['open'] == 1)
             {
                 mysqli_query($db, "UPDATE padporsc_bot4.teams SET open = 0 WHERE master_key = {$row2['team_master_key']}");
+                mysqli_query($db, "UPDATE padporsc_bot4.usres SET current_level = 'user_menu' WHERE user_id = {$user_id}");
                 if ($locale == "farsi")
-                    makeCurl("editMessageText", ["chat_id" => $user_id, "message_id" => $message_id, "text" => "تیمت دیگه توی جستوجوی تصادفی پیدا نمیشه، برای غیر فعال کردن ای ویژگی دوباره روی ‍‍'تیم در جستوجوی تصادفی بزن' بزن", "reply_markup" => json_encode([
+                    makeCurl("editMessageText", ["chat_id" => $user_id, "message_id" => $message_id, "text" => "الان بقیه میتونن به این تیم اپلای کنن 😉 . برا بستن تیم، دوباره روی ‍‍'تیم باز' بزن.", "reply_markup" => json_encode([
                         "inline_keyboard" => [
                             [
                                 ["text" => "ادامه", "callback_data" => "C0nT1nu3"]
@@ -1649,6 +1664,7 @@ function haveTeam($i)                               //handle if you have team me
             elseif ($row3['open'] == 0)
             {
                 mysqli_query($db, "UPDATE padporsc_bot4.teams SET open = 1 WHERE master_key = {$row2['team_master_key']}");
+                mysqli_query($db, "UPDATE padporsc_bot4.usres SET current_level = 'user_menu' WHERE user_id = {$user_id}");
                 if ($locale == "farsi")
                     makeCurl("editMessageText", ["chat_id" => $user_id, "message_id" => $message_id, "text" => "حالا تیمت توی جستوجوی تصادفی پیدا میشه", "reply_markup" => json_encode([
                         "inline_keyboard" => [
