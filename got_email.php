@@ -20,8 +20,9 @@ function getEmailStartEntrance()            //this function get user's email and
     {
 
         mysqli_query($db, "UPDATE padporsc_bot4.users SET email = \"{$text}\", current_level = 'has_email_go_to_entrance' WHERE user_id = {$user_id}");
-
-        if ($locale == "farsi") {
+        $text = "asK_m3_Qu3sT1an";
+        entrance();
+        /*if ($locale == "farsi") {
             makeCurl("sendMessage", ["chat_id" => $user_id, "text" =>"از چه راهی میخوای وارد مسابقه شی؟", "reply_markup" => json_encode([
                 "inline_keyboard" =>[
                     [
@@ -44,6 +45,6 @@ function getEmailStartEntrance()            //this function get user's email and
                     ]
                 ]
             ])]);
-        }
+        }*/
     }
 }

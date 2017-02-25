@@ -17,38 +17,39 @@ function answering()                    //after answering this function will han
 
         $result = mysqli_query($db, "SELECT * FROM padporsc_bot4.users WHERE user_id = {$user_id}");
         $row = mysqli_fetch_array($result);
-        $qstring = $row['question_string'];
-        $qstring[$row['question_number'] - 1] = "1";
-        mysqli_query($db, "UPDATE padporsc_bot4.users SET current_level = 'question_menu', current_content = NULL , question_number = 0 , question_string = \"{$qstring}\" WHERE user_id = {$user_id}");
+        $qString = $row['question_string'];
+        $qString[$row['question_number'] - 1] = "1";
+        mysqli_query($db, "UPDATE padporsc_bot4.users SET current_level = 'question_menu', current_content = NULL , question_number = 0 , question_string = \"{$qString}\" WHERE user_id = {$user_id}");
         if ($row['team_master_key'])
             $team = $row['team_master_key'];
         else
             $team = 0;
         mysqli_query($db, "INSERT INTO padporsc_bot4.user{$user_id} (content, question_number, group_of_answer_master_key) VALUES (\"{$row['current_content']}\", {$row['question_number']}, {$team})");
-
-        mail("postmaster@discourse.padpors.com", "this is question {$row['question_number']} {$user_id}", $row['current_content'], "From: {$row['email']}");
-        if ($locale == "farsi")
-            makeCurl("editMessageText", ["chat_id" => $user_id, "message_id" => $message_id, "text" => "ممنون ازین که به این سوال پاسخ دادی.", "reply_markup" => json_encode([
-                "inline_keyboard" => [
-                    [
-                        ["text" => "ادامه", "callback_data" => "C0nT1nu3"]
-                    ]
-                ]
-            ])]);
-        elseif ($locale == "english")
-            makeCurl("editMessageText", ["chat_id" => $user_id, "message_id" => $message_id, "text" => "Thanks for your answer", "reply_markup" => json_encode([
-                "inline_keyboard" => [
-                    [
-                        ["text" => "Continue", "callback_data" => "C0nT1nu3"]
-                    ]
-                ]
-            ])]);
+        $rand = rand(0, 999999999999999);
+        mail("postmaster@discourse.padpors.com", "this is question {$row['question_number']} {$user_id} {$rand}", $row['current_content'], "From: {$row['email']}");
+        question_menu();
+//        if ($locale == "farsi")
+//            makeCurl("editMessageText", ["chat_id" => $user_id, "message_id" => $message_id, "text" => "ممنون ازین که به این سوال پاسخ دادی.", "reply_markup" => json_encode([
+//                "inline_keyboard" => [
+//                    [
+//                        ["text" => "ادامه", "callback_data" => "C0nT1nu3"]
+//                    ]
+//                ]
+//            ])]);
+//        elseif ($locale == "english")
+//            makeCurl("editMessageText", ["chat_id" => $user_id, "message_id" => $message_id, "text" => "Thanks for your answer", "reply_markup" => json_encode([
+//                "inline_keyboard" => [
+//                    [
+//                        ["text" => "Continue", "callback_data" => "C0nT1nu3"]
+//                    ]
+//                ]
+//            ])]);
 
     }
     elseif(recognize($text) == 0)
     {
         if ($locale == "farsi")
-            makeCurl("sendMessage", ["chat_id" => $user_id, "text" => "اگه پاسخت تموم شد، بزن روی دکمه ی زیر.وگرنه هنوز میتونی به نوشتنت ادامه بدی و پاسخت رو تکمیل کنی.",
+            makeCurl("sendMessage", ["chat_id" => $user_id, "text" => "هروقت پاسخت تکمیل شد بزن رو دکمه ی زیر.",
                 "reply_markup" => json_encode([
                     "inline_keyboard" => [
                         [
@@ -77,7 +78,7 @@ function answering()                    //after answering this function will han
         $content .= $text;
         mysqli_query($db,"UPDATE padporsc_bot4.users set  current_content = \"{$content}\" WHERE user_id={$user_id}");
         if ($locale == "farsi")
-            makeCurl("sendMessage", ["chat_id" => $user_id, "text" => "اگه پاسخت تموم شد، بزن روی دکمه ی زیر.وگرنه هنوز میتونی به نوشتنت ادامه بدی و پاسخت رو تکمیل کنی.",
+            makeCurl("sendMessage", ["chat_id" => $user_id, "text" => "هر وقت پاسخت تکمیل شد بزن رو دکمه ی زیر.",
                 "reply_markup" => json_encode([
                     "inline_keyboard" => [
                         [

@@ -8,7 +8,7 @@
 function returnQuestion($b)              //input=question number * output=question string
 {
     global $locale;
-    $data = mysqli_connect("localhost","root","root","padporsc_questions");
+    $data = mysqli_connect("localhost","root","root","padporsc_data");
 
     if($locale == "farsi")
     {

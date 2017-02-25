@@ -19,7 +19,7 @@ function startAsking()                      //handle the first request to bot af
         mysqli_query($db, "UPDATE padporsc_bot4.users SET current_level = 'answering', current_content = \"{$text}\" WHERE user_id = {$user_id}");
 
         if ($locale == "farsi")
-            makeCurl("sendMessage", ["chat_id" => $user_id, "text" => "اگه پاسخت تموم شد، بزن روی دکمه ی زیر.وگرنه هنوز میتونی به نوشتنت ادامه بدی و پاسخت رو تکمیل کنی.",
+            makeCurl("sendMessage", ["chat_id" => $user_id, "text" => "هروقت پاسخت تکمیل شد بزن رو دکمه ی زیر.",
                 "reply_markup" => json_encode([
                     "inline_keyboard" => [
                         [

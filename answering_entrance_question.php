@@ -14,11 +14,15 @@ function answeringEntranceQuestion()               //this function handle the an
 
     mysqli_query($db, "UPDATE padporsc_bot4.users SET current_level = 'question_menu' WHERE user_id = {$user_id}");
     $result = mysqli_query($db, "SELECT * FROM padporsc_bot4.users WHERE user_id = {$user_id}");
-
+    $data = mysqli_connect("localhost","root", "root", "padporsc_data");
+    $result2 = mysqli_query($data, "SELECT * FROM padporsc_data.final");
+    $row2 = mysqli_fetch_array($result2);
     $row = mysqli_fetch_array($result);
     mail("postmaster@discourse.padpors.com", "Entrance Question for Bot", $text, "From: {$row['email']}");
     if ($locale == "farsi")
-        makeCurl("sendMessage", ["chat_id" => $user_id, "text" => "تبریک میگم! وارد مسابقه شدی.", "reply_markup" =>
+
+        makeCurl("sendMessage", ["chat_id" => $user_id, "text" => "{$row2['sentence']}
+        🌕", "reply_markup" =>
             json_encode([
                 "inline_keyboard" => [
                     [

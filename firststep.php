@@ -14,7 +14,8 @@ function firstStep()                //the first step for user after click on loc
     if( $text == "P3R$1an")
     {
         mysqli_query($db, "UPDATE padporsc_bot4.users SET locale = 'farsi', current_level = 'firstStep' WHERE user_id = {$user_id}");
-        makeCurl("sendMessage", ["chat_id" => $user_id, "text" => "به پادبات خوش اومدی، بات رسمی پادپُرس. ایمیلت رو وارد کن و اگر کاربر پادپُرس هستی، ایمیل پادپُرست رو وارد کن."]);
+        makeCurl("sendMessage", ["chat_id" => $user_id, "text" => "ایمیلت رو وارد کن
+        ️🌓️"]);
     }elseif ($text == "3ngL1$1h")
     {
         mysqli_query($db, "UPDATE padporsc_bot4.users SET locale = 'english', current_level = 'firstStep' WHERE user_id = {$user_id}");

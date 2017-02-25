@@ -17,11 +17,11 @@ function question_menu()                    //show user the questions and user m
     $string = $row['question_string'];
     mysqli_query($db,"UPDATE padporsc_bot4.users SET current_level = 'question_showed' WHERE user_id = {$user_id}");
 
-    $sign = array("◻️","◻️","◻️","◻️","◻️","◻️");
+    $sign = array('😷','😷','😷','😷','😷','😷');
     for($i = 0 ; $i < 6 ; $i++)
     {
         if($string[$i] == "1")
-            $sign[$i] = "☑️";
+            $sign[$i] = '😃';
     }
     if ($locale == "farsi")
     {

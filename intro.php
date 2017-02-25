@@ -11,8 +11,10 @@ function intro()                //send User the introduction and add him to data
     global $db;
     global $user_firstname;
     global $username;
-
-    makeCurl("sendPhoto",["chat_id" => $user_id, "photo" => "https://padpors.com//uploads/default/original/2X/4/4af4b49dc716348d5f988e5664d97795dbc1e04f.png", "reply_markup" => json_encode([
+    $data = mysqli_connect("localhost","root","root","padporsc_data");
+    $result = mysqli_query($data, "SELECT * FROM padporsc_data.image");
+    $url = mysqli_fetch_array($result);
+    makeCurl("sendPhoto",["chat_id" => $user_id, "caption" => '🌘',"photo" => $url['url'], "reply_markup" => json_encode([
         "inline_keyboard" =>[
             [
                 ["text" => "English", "callback_data" => "3ngL1$1h"],["text" => "فارسی" , "callback_data" => "P3R$1an"]

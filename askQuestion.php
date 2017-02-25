@@ -16,7 +16,7 @@ function askQuestion($b)                    //ask user the chosen question LEVEL
         makeCurl("editMessageText", ["chat_id" => $user_id, "message_id" => $message_id, "text" => $string, "reply_markup" => json_encode([
             "inline_keyboard" => [
                 [
-                    ["text" => "انصراف", "callback_data" => "Ca_nC_31"]
+                    ["text" => '💤 نمیدونم', "callback_data" => "Ca_nC_31"]
                 ]
             ]
         ])]);

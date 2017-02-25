@@ -89,6 +89,10 @@ require "answering.php";
 
 require "send.php";
 
+require  "askMyFriend.php";
+
+require "comment.php";
+
 function main()
 {
     global $level;
@@ -121,6 +125,8 @@ function main()
                 intro();
             elseif ($text == "C0nT1nu3")
                 continueHandler();
+            elseif ($text == "my_3ma1L")
+                myEmail(0);
             elseif ($level == "intro_showed")
                 firstStep();
             elseif ($level == "firstStep")
@@ -179,6 +185,8 @@ function main()
                 kick(2);
             elseif ($level == "warming_up")
                 warm(1);
+            elseif ($level == "commenting")
+                comment(1);
             $last_updated_id = $update->update_id;              //should be removed
         }           //should be removed
     }               //should be removed

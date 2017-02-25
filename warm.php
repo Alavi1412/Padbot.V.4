@@ -46,20 +46,15 @@ function warm($i)                   //used for warming up the user's mind
     {
         if ($text == "CanCE33LLll")
         {
-            mysqli_query($db, "UPDATE padporsc_bot4.users SET warm = 1, chosen = NULL , word = NULL , current_level = 'user_menu' WHERE  user_id = {$user_id}");
-            $result = mysqli_query($db, "SELECT * FROM padporsc_bot4.users WHERE user_id = {$user_id}");
-            $row = mysqli_fetch_array($result);
-            if($row['question_string'] == "111111")
-                userMenu(1,1);
-            else
-                userMenu(1,0);
+            mysqli_query($db, "UPDATE padporsc_bot4.users SET warm = 1 WHERE user_id = {$user_id}");
+            question_menu();
         }
         else
         {
             if ($row['warm'] == 10)
             {
 
-                mysqli_query($db, "UPDATE padporsc_bot4.users SET current_level = 'user_menu', warm = 1 WHERE user_id = {$user_id}");
+                mysqli_query($db, "UPDATE padporsc_bot4.users SET current_level = 'question_menu', warm = 1 WHERE user_id = {$user_id}");
 
                 if ($text == "0")
                 {

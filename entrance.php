@@ -43,16 +43,21 @@ function entrance()                     //handle the menu in entrance and the us
         }
     }elseif ($text == "asK_m3_Qu3sT1an")
     {
-
+        $data = mysqli_connect("localhost","root", "root", "padporsc_data");
+        $result = mysqli_query($data, "SELECT * FROM padporsc_data.entrance");
+        $row = mysqli_fetch_array($result);
         mysqli_query($db, "UPDATE padporsc_bot4.users SET current_level = 'answering_the_entrance_question' WHERE user_id = {$user_id}");
 
         if ($locale == "farsi")
         {
-            makeCurl("editMessageText", ["chat_id" => $user_id, "text" => "چرا میخوای تو چالش مقابله با آلودگی هوا مشارکت کنی؟", "message_id" => $message_id]);
+//            makeCurl("editMessageText", ["chat_id" => $user_id, "text" => "چرا میخوای تو چالش مقابله با آلودگی هوا مشارکت کنی؟", "message_id" => $message_id]);
+            makeCurl("sendMessage", ["chat_id" => $user_id, "text" => "️{$row['sentence']}
+            🌔"]);
         }
         elseif ($locale == "english")
         {
-            makeCurl("editMessageText", ["chat_id" => $user_id, "text" => "Why do you want to participate in \"air pollution\" challenge?", "message_id" => $message_id]);
+//            makeCurl("editMessageText", ["chat_id" => $user_id, "text" => "Why do you want to participate in \"air pollution\" challenge?", "message_id" => $message_id]);
+            makeCurl("sendMessage", ["chat_id" => $user_id, "text" => "Why do you want to participate in \"air pollution\" challenge?"]);
         }
     }
 }

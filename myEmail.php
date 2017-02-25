@@ -45,7 +45,8 @@ function myEmail($i)                            //used to show user his email an
         else
         {
 
-            mysqli_query($db, "UPDATE padporsc_bot4.users SET current_level = 'watching_info', email = \"{$text}\" WHERE user_id = {$user_id}");
+//            mysqli_query($db, "UPDATE padporsc_bot4.users SET current_level = 'watching_info', email = \"{$text}\" WHERE user_id = {$user_id}");
+            mysqli_query($db, "UPDATE padporsc_bot4.users SET current_level = 'user_menu', email = \"{$text}\" WHERE user_id = {$user_id}");
 
             if ($locale == "farsi")
                 makeCurl("sendMessage", ["chat_id" => $user_id, "text" => "ایمیل شما با موفقیت تغییر یافت", "reply_markup" => json_encode([
